@@ -112,16 +112,15 @@ theorem add_enclosure_conservative (p₁ p₂ : NUPair) :
   have hδ₁ : |δ₁| ≤ p₁.u := by
     simp [δ₁]
     rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨ha_upper, ha_lower⟩
+    exact abs_sub_le_iff.mpr ⟨ha_lower, ha_upper⟩
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
     simp [δ₂]
     rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨hb_upper, hb_lower⟩
+    exact abs_sub_le_iff.mpr ⟨hb_lower, hb_upper⟩
 
   have hx_form : x = (p₁.n + p₂.n) + (δ₁ + δ₂) := by
     simp [δ₁, δ₂, hx]
-    ring
 
   have h_bound := quadrature_bounds_interval_sum p₁.u p₂.u δ₁ δ₂ hδ₁ hδ₂ p₁.h_nonneg p₂.h_nonneg
 
@@ -226,21 +225,22 @@ theorem multiply_enclosure_conservative (p₁ p₂ : NUPair) :
   have hδ₁ : |δ₁| ≤ p₁.u := by
     simp [δ₁]
     rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨ha_upper, ha_lower⟩
+    exact abs_sub_le_iff.mpr ⟨ha_lower, ha_upper⟩
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
     simp [δ₂]
     rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨hb_upper, hb_lower⟩
+    exact abs_sub_le_iff.mpr ⟨hb_lower, hb_upper⟩
 
   have hx_form : x = (p₁.n + δ₁) * (p₂.n + δ₂) := by
     simp [δ₁, δ₂, hx]
-    ring
 
   have h_arith := multiply_conservative_bound p₁.n p₁.u p₂.n p₂.u δ₁ δ₂ hδ₁ hδ₂ p₁.h_nonneg p₂.h_nonneg
 
   have h_quad := arithmetic_to_quadrature_bound (|p₁.n| * p₂.u) (|p₂.n| * p₁.u) (p₁.u * p₂.u)
-    (by positivity) (by positivity) (by positivity)
+    (mul_nonneg (abs_nonneg p₁.n) p₂.h_nonneg)
+    (mul_nonneg (abs_nonneg p₂.n) p₁.h_nonneg)
+    (mul_nonneg p₁.h_nonneg p₂.h_nonneg)
 
   have : |x - p₁.n * p₂.n| ≤ Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
     calc |x - p₁.n * p₂.n|
@@ -248,10 +248,12 @@ theorem multiply_enclosure_conservative (p₁ p₂ : NUPair) :
       _ ≤ |p₁.n| * p₂.u + |p₂.n| * p₁.u + p₁.u * p₂.u := h_arith
       _ ≤ Real.sqrt (3*((|p₁.n| * p₂.u)^2 + (|p₂.n| * p₁.u)^2 + (p₁.u * p₂.u)^2)) := h_quad
       _ = Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
-            simp only [sq_abs]
+            rw [sq_abs, sq_abs]
 
   rw [abs_sub_le_iff] at this
-  exact this
+  constructor
+  · linarith [this.2]
+  · linarith [this.1]
 
 /-- Multiplication enclosure theorem (standard form) -/
 theorem multiply_enclosure (p₁ p₂ : NUPair) :
@@ -261,8 +263,9 @@ theorem multiply_enclosure (p₁ p₂ : NUPair) :
   have := multiply_enclosure_conservative p₁ p₂
   have h_in := this hx
   simp [Set.mem_Icc] at h_in
-  rw [abs_sub_le_iff]
-  exact h_in
+  constructor
+  · linarith [h_in.2]
+  · linarith [h_in.1]
 
 /-- Enclosure property is maintained across operations (with conservative factors)
 
