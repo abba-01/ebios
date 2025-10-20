@@ -44,31 +44,28 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
     (δ₁ + δ₂)^2 ≤ (u₁ + u₂)^2 ∧ (u₁ + u₂)^2 ≤ 2*(u₁^2 + u₂^2) := by
   constructor
   · -- First part: (δ₁ + δ₂)² ≤ (u₁ + u₂)²
-    have : δ₁^2 + 2*δ₁*δ₂ + δ₂^2 ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by
-      have h_prod : δ₁*δ₂ ≤ |δ₁*δ₂| := le_abs_self (δ₁*δ₂)
-      nlinarith [h₁, h₂, h_prod]
+    -- Prove |δ₁| ≤ √(u₁²) from δ₁² ≤ u₁²
+    have hδ₁ : |δ₁| ≤ Real.sqrt (u₁^2) := by
+      have : Real.sqrt (δ₁^2) ≤ Real.sqrt (u₁^2) := Real.sqrt_le_sqrt h₁
+      rw [Real.sqrt_sq_eq_abs] at this
+      exact this
+    -- Prove |δ₂| ≤ √(u₂²) from δ₂² ≤ u₂²
+    have hδ₂ : |δ₂| ≤ Real.sqrt (u₂^2) := by
+      have : Real.sqrt (δ₂^2) ≤ Real.sqrt (u₂^2) := Real.sqrt_le_sqrt h₂
+      rw [Real.sqrt_sq_eq_abs] at this
+      exact this
+    -- Prove |δ₁*δ₂| ≤ √(u₁²) * √(u₂²)
+    have h_prod_bound : |δ₁*δ₂| ≤ Real.sqrt (u₁^2) * Real.sqrt (u₂^2) := by
+      rw [abs_mul]
+      exact mul_le_mul hδ₁ hδ₂ (abs_nonneg δ₂) (Real.sqrt_nonneg _)
+
     calc (δ₁ + δ₂)^2
         = δ₁^2 + 2*δ₁*δ₂ + δ₂^2 := by ring
       _ ≤ δ₁^2 + 2*|δ₁*δ₂| + δ₂^2 := by nlinarith [le_abs_self (δ₁*δ₂)]
       _ ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by linarith [h₁, h₂]
-      _ ≤ u₁^2 + 2*Real.sqrt(u₁^2)*Real.sqrt(u₂^2) + u₂^2 := by
-          -- Prove |δ₁| ≤ √(u₁²) from δ₁² ≤ u₁²
-          have hδ₁ : |δ₁| ≤ Real.sqrt(u₁^2) := by
-            have : Real.sqrt(δ₁^2) ≤ Real.sqrt(u₁^2) := Real.sqrt_le_sqrt h₁
-            rw [Real.sqrt_sq_eq_abs] at this
-            exact this
-          -- Prove |δ₂| ≤ √(u₂²) from δ₂² ≤ u₂²
-          have hδ₂ : |δ₂| ≤ Real.sqrt(u₂^2) := by
-            have : Real.sqrt(δ₂^2) ≤ Real.sqrt(u₂^2) := Real.sqrt_le_sqrt h₂
-            rw [Real.sqrt_sq_eq_abs] at this
-            exact this
-          have : |δ₁*δ₂| ≤ Real.sqrt(u₁^2) * Real.sqrt(u₂^2) := by
-            rw [abs_mul]
-            exact mul_le_mul hδ₁ hδ₂ (abs_nonneg δ₂) (Real.sqrt_nonneg _)
-          linarith
-      _ = (Real.sqrt(u₁^2) + Real.sqrt(u₂^2))^2 := by ring
-      _ = (u₁ + u₂)^2 := by
-          simp only [Real.sq_sqrt (sq_nonneg u₁), Real.sq_sqrt (sq_nonneg u₂)]
+      _ ≤ u₁^2 + 2*(Real.sqrt (u₁^2) * Real.sqrt (u₂^2)) + u₂^2 := by linarith [h_prod_bound]
+      _ = (Real.sqrt (u₁^2) + Real.sqrt (u₂^2))^2 := by ring
+      _ = (u₁ + u₂)^2 := by simp only [Real.sq_sqrt (sq_nonneg u₁), Real.sq_sqrt (sq_nonneg u₂)]
   · -- Second part: (u₁ + u₂)² ≤ 2(u₁² + u₂²)
     calc (u₁ + u₂)^2
         = u₁^2 + 2*u₁*u₂ + u₂^2 := by ring
