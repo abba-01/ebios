@@ -9,5 +9,5 @@ require mathlib from git
 
 @[default_target]
 lean_lib «NUProof» where
-  -- Library configuration
-  roots := #[`NUProof]
+  -- Library configuration (no roots specified - auto-discover all files)
+  globs := #[.submodules `NUProof]
