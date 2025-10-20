@@ -77,8 +77,12 @@ lemma quadrature_bounds_interval_sum (u₁ u₂ δ₁ δ₂ : ℝ)
     (h₁ : |δ₁| ≤ u₁) (h₂ : |δ₂| ≤ u₂)
     (hu₁ : 0 ≤ u₁) (hu₂ : 0 ≤ u₂) :
     |δ₁ + δ₂| ≤ Real.sqrt (2*(u₁^2 + u₂^2)) := by
-  have hδ₁_sq : δ₁^2 ≤ u₁^2 := by nlinarith [h₁, sq_abs δ₁]
-  have hδ₂_sq : δ₂^2 ≤ u₂^2 := by nlinarith [h₂, sq_abs δ₂]
+  have hδ₁_sq : δ₁^2 ≤ u₁^2 := by
+    calc δ₁^2 = |δ₁|^2 := by rw [sq_abs]
+      _ ≤ u₁^2 := by nlinarith [h₁, abs_nonneg δ₁, hu₁]
+  have hδ₂_sq : δ₂^2 ≤ u₂^2 := by
+    calc δ₂^2 = |δ₂|^2 := by rw [sq_abs]
+      _ ≤ u₂^2 := by nlinarith [h₂, abs_nonneg δ₂, hu₂]
 
   have h_stat := quadrature_statistical_bound u₁ u₂ δ₁ δ₂ hδ₁_sq hδ₂_sq
 
