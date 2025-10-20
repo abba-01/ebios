@@ -1,0 +1,52 @@
+{
+  "title": "eBIOS: Epistemic Basic Input/Output System",
+  "description": "eBIOS (Epistemic Basic Input/Output System) is a foundational firmware layer for uncertainty-aware computation in safety-critical systems. Like a traditional BIOS provides hardware initialization and I/O primitives, eBIOS provides epistemic primitives for uncertainty quantification, formal verification, and accountability. <br><br><strong>Key Features:</strong><ul><li>N/U (Nominal/Uncertainty) Algebra with O(1) operations</li><li>Formal verification in Lean 4 (62.5% complete)</li><li>Cryptographic audit ledger with Ed25519 signatures</li><li>Policy-driven runtime monitoring</li><li>Complete governance API</li></ul><br><strong>Core Principles:</strong><ol><li><strong>Immutability:</strong> Truth is a data structure, not a declaration</li><li><strong>Provability:</strong> Failure is allowed. Lying about failure is not.</li><li><strong>Accountability:</strong> You can run what you want above it, but you can't hide what you did</li></ol><br><strong>Status:</strong> Alpha release with 172 passing tests, 100% code coverage, and 403 lines of rigorous formal verification.",
+  "creators": [
+    {
+      "name": "eBIOS Contributors",
+      "affiliation": "eBIOS Project"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Claude (Anthropic)",
+      "type": "Other",
+      "affiliation": "Anthropic"
+    }
+  ],
+  "keywords": [
+    "formal-verification",
+    "uncertainty-quantification",
+    "epistemic-logic",
+    "safety-critical-systems",
+    "lean4",
+    "theorem-proving",
+    "cryptographic-audit",
+    "N/U-algebra",
+    "immutable-systems",
+    "governance",
+    "policy-management",
+    "BIOS",
+    "firmware",
+    "epistemic-computation"
+  ],
+  "license": "Apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/abba-01/ebios",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "version": "0.2.0-alpha",
+  "language": "eng",
+  "subjects": [
+    {"term": "Formal Verification", "scheme": "keyword"},
+    {"term": "Epistemic Logic", "scheme": "keyword"},
+    {"term": "Uncertainty Quantification", "scheme": "keyword"},
+    {"term": "Safety-Critical Systems", "scheme": "keyword"}
+  ],
+  "notes": "This alpha release marks significant progress on formal verification with 5/8 Lean 4 proofs complete (62.5%). Includes complete implementation of N/U Algebra, cryptographic ledger, runtime monitoring, policy management, and HTTP governance API. Total: 403 lines of rigorous formal verification, 172 passing tests, complete documentation and compliance mapping."
+}
