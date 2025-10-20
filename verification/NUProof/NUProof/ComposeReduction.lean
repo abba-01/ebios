@@ -83,7 +83,8 @@ lemma product_div_sum_le_min_sq (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h_ne 
 /-- Composition reduces uncertainty -/
 theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p₂.u ≠ 0) :
   (compose p₁ p₂ h).u ≤ min p₁.u p₂.u := by
-  simp [compose]
+  unfold compose
+  simp only []
 
   -- Goal: √[(u₁²·u₂²)/(u₁² + u₂²)] ≤ min(u₁, u₂)
 
@@ -109,12 +110,12 @@ theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p
 theorem compose_with_certain (p₁ p₂ : NUPair) (h₁ : p₁.u = 0) (h₂ : p₂.u ≠ 0) :
   let result := compose p₁ p₂ (Or.inr h₂)
   result.n = p₁.n ∧ result.u = 0 := by
-  unfold compose
-  simp [h₁]
   have h_sq_ne : p₂.u^2 ≠ 0 := by
     intro h_contra
     have : p₂.u = 0 := by nlinarith [p₂.h_nonneg, h_contra]
     exact h₂ this
+  unfold compose
+  simp only [h₁]
   constructor
   · -- Prove nominal: (p₁.n * p₂.u² + 0) / p₂.u² = p₁.n
     field_simp [h_sq_ne]
