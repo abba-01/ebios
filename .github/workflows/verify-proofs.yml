@@ -29,7 +29,7 @@ jobs:
           version: 'v4.3.0'
 
       - name: Cache Lean dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             verification/NUProof/.lake
@@ -99,7 +99,7 @@ jobs:
           cat proof_manifest.json | python3 -m json.tool
 
       - name: Upload proof manifest
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: proof-manifest
           path: verification/NUProof/proof_manifest.json
@@ -152,7 +152,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download proof manifest
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: proof-manifest
           path: verification/NUProof/

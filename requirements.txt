@@ -13,7 +13,7 @@ pytest-cov>=4.1.0
 
 # Cryptography (for attestation and signing)
 cryptography>=41.0.0
-ed25519>=1.5
+# ed25519>=1.5  # Removed: incompatible with Python 3.12, use cryptography.hazmat.primitives.asymmetric.ed25519 instead
 
 # Ledger and data handling
 # lmdb>=1.4.0  # Lightweight database for NULedger
