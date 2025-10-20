@@ -52,12 +52,16 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
       _ ≤ δ₁^2 + 2*|δ₁*δ₂| + δ₂^2 := by nlinarith [le_abs_self (δ₁*δ₂)]
       _ ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by linarith [h₁, h₂]
       _ ≤ u₁^2 + 2*Real.sqrt(u₁^2)*Real.sqrt(u₂^2) + u₂^2 := by
+          -- Prove |δ₁| ≤ √(u₁²) from δ₁² ≤ u₁²
           have hδ₁ : |δ₁| ≤ Real.sqrt(u₁^2) := by
-            rw [Real.abs_le_sqrt]
-            exact ⟨sq_nonneg u₁, h₁⟩
+            have : Real.sqrt(δ₁^2) ≤ Real.sqrt(u₁^2) := Real.sqrt_le_sqrt h₁
+            rw [Real.sqrt_sq_eq_abs] at this
+            exact this
+          -- Prove |δ₂| ≤ √(u₂²) from δ₂² ≤ u₂²
           have hδ₂ : |δ₂| ≤ Real.sqrt(u₂^2) := by
-            rw [Real.abs_le_sqrt]
-            exact ⟨sq_nonneg u₂, h₂⟩
+            have : Real.sqrt(δ₂^2) ≤ Real.sqrt(u₂^2) := Real.sqrt_le_sqrt h₂
+            rw [Real.sqrt_sq_eq_abs] at this
+            exact this
           have : |δ₁*δ₂| ≤ Real.sqrt(u₁^2) * Real.sqrt(u₂^2) := by
             rw [abs_mul]
             exact mul_le_mul hδ₁ hδ₂ (abs_nonneg δ₂) (Real.sqrt_nonneg _)

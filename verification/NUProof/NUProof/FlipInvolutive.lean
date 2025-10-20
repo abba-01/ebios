@@ -23,11 +23,12 @@ namespace NUCore
 /-- Flip is involutive -/
 theorem flip_involutive (p : NUPair) :
   flip (flip p) = p := by
-  apply NUPair.ext
-  · -- -(-n) = n
+  ext
+  · -- -(-n) = n: flip.n (flip p).n = p.n
+    simp [flip]
     ring
-  · -- u = u
-    rfl
+  · -- u = u: flip.u (flip p).u = p.u
+    simp [flip]
 
 /-- Flip preserves uncertainty exactly -/
 theorem flip_preserves_uncertainty (p : NUPair) :

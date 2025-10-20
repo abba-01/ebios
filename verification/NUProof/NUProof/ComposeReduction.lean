@@ -41,10 +41,17 @@ lemma product_div_sum_le_min_sq (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h_ne 
     by_cases ha_zero : a = 0
     · -- If a = 0, then min = 0 and LHS = 0
       simp [ha_zero]
-      positivity
+      apply div_nonneg
+      · nlinarith [sq_nonneg b]
+      · linarith [sq_nonneg b]
     · -- If a ≠ 0
       have h_pos : 0 < a^2 + b^2 := by
-        have : 0 < a^2 := by nlinarith [ha, ha_zero]
+        have ha_sq_pos : 0 < a^2 := by
+          have ha_pos : 0 < a := by
+            cases' (ne_iff_lt_or_gt.mp ha_zero) with h h
+            · linarith
+            · exact h
+          nlinarith
         linarith [sq_nonneg b]
 
       rw [div_le_iff h_pos]
@@ -62,9 +69,16 @@ lemma product_div_sum_le_min_sq (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h_ne 
 
     by_cases hb_zero : b = 0
     · simp [hb_zero]
-      positivity
+      apply div_nonneg
+      · nlinarith [sq_nonneg a]
+      · linarith [sq_nonneg a]
     · have h_pos : 0 < a^2 + b^2 := by
-        have : 0 < b^2 := by nlinarith [hb, hb_zero]
+        have hb_sq_pos : 0 < b^2 := by
+          have hb_pos : 0 < b := by
+            cases' (ne_iff_lt_or_gt.mp hb_zero) with h h
+            · linarith
+            · exact h
+          nlinarith
         linarith [sq_nonneg a]
 
       rw [div_le_iff h_pos]
@@ -89,7 +103,9 @@ theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p
   -- Simplify √(min²) = min (since min ≥ 0)
   have h_min_nonneg : 0 ≤ min p₁.u p₂.u := by
     simp [min]
-    split_ifs <;> [exact p₁.h_nonneg, exact p₂.h_nonneg]
+    split_ifs
+    · exact p₁.h_nonneg
+    · exact p₂.h_nonneg
 
   rw [Real.sqrt_sq h_min_nonneg] at h_sqrt
   exact h_sqrt
@@ -100,7 +116,10 @@ theorem compose_with_certain (p₁ p₂ : NUPair) (h₁ : p₁.u = 0) (h₂ : p�
   result.n = p₁.n ∧ result.u = 0 := by
   unfold compose
   simp [h₁]
-  have h_sq_ne : p₂.u^2 ≠ 0 := by nlinarith [p₂.h_nonneg, h₂]
+  have h_sq_ne : p₂.u^2 ≠ 0 := by
+    intro h_contra
+    have : p₂.u = 0 := by nlinarith [p₂.h_nonneg, h_contra]
+    exact h₂ this
   constructor
   · -- Prove nominal: (p₁.n * p₂.u² + 0) / p₂.u² = p₁.n
     field_simp [h_sq_ne]
@@ -112,7 +131,6 @@ theorem compose_with_certain (p₁ p₂ : NUPair) (h₁ : p₁.u = 0) (h₂ : p�
 theorem compose_comm (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p₂.u ≠ 0) :
   compose p₁ p₂ h = compose p₂ p₁ (h.symm) := by
   unfold compose
-  simp only
   ext
   · -- Prove nominal values are equal
     -- (p₁.n * p₂.u² + p₂.n * p₁.u²) / (p₁.u² + p₂.u²)
