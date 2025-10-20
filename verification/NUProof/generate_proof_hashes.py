@@ -139,10 +139,35 @@ class ProofHasher:
             "complete" or "skeleton"
         """
         with open(lean_file, 'r') as f:
-            content = f.read()
+            lines = f.readlines()
 
-        if 'sorry' in content or 'axiom' in content:
-            return "skeleton"
+        # Check for actual sorry/axiom usage (not in comments)
+        in_multiline_comment = False
+        for line in lines:
+            stripped = line.strip()
+
+            # Handle multi-line comments
+            if '/-' in line:
+                in_multiline_comment = True
+            if '-/' in line:
+                in_multiline_comment = False
+                continue
+            if in_multiline_comment:
+                continue
+
+            # Skip single-line comments
+            if stripped.startswith('--'):
+                continue
+
+            # Remove inline comments
+            code_part = line.split('--')[0]
+
+            # Check for sorry or axiom in actual code
+            if ' sorry' in code_part or '\tsorry' in code_part or code_part.strip() == 'sorry':
+                return "skeleton"
+            if 'axiom ' in code_part:
+                return "skeleton"
+
         return "complete"
 
     def save_manifest(self, manifest, output_path):

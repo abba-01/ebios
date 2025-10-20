@@ -57,7 +57,8 @@ jobs:
           COMPLETE_PROOFS=(
             "NonNegativity.lean"
             "FlipInvolutive.lean"
-            "AddProperties.lean"
+            "Enclosure.lean"
+            "ComposeReduction.lean"
           )
 
           FOUND_SORRY=0
