@@ -41,9 +41,6 @@ lemma product_div_sum_le_min_sq (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h_ne 
     by_cases ha_zero : a = 0
     · -- If a = 0, then min = 0 and LHS = 0
       simp [ha_zero]
-      apply div_nonneg
-      · nlinarith [sq_nonneg b]
-      · linarith [sq_nonneg b]
     · -- If a ≠ 0
       have h_pos : 0 < a^2 + b^2 := by
         have ha_sq_pos : 0 < a^2 := by
@@ -69,9 +66,6 @@ lemma product_div_sum_le_min_sq (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h_ne 
 
     by_cases hb_zero : b = 0
     · simp [hb_zero]
-      apply div_nonneg
-      · nlinarith [sq_nonneg a]
-      · linarith [sq_nonneg a]
     · have h_pos : 0 < a^2 + b^2 := by
         have hb_sq_pos : 0 < b^2 := by
           have hb_pos : 0 < b := by
@@ -96,14 +90,13 @@ theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p
   have h_prod := product_div_sum_le_min_sq p₁.u p₂.u p₁.h_nonneg p₂.h_nonneg h
 
   -- Take square root of both sides
-  have h_sqrt : Real.sqrt ((p₁.u^2 * p₂.u^2) / (p₁.u^2 + p₂.u^2)) ≤ Real.sqrt (min p₁.u p₂.u ^ 2) := by
+  have h_sqrt : Real.sqrt ((p₁.u^2 * p₂.u^2) / (p₁.u^2 + p₂.u^2)) ≤ Real.sqrt ((min p₁.u p₂.u) ^ 2) := by
     apply Real.sqrt_le_sqrt
     exact h_prod
 
   -- Simplify √(min²) = min (since min ≥ 0)
   have h_min_nonneg : 0 ≤ min p₁.u p₂.u := by
-    simp [min]
-    split_ifs
+    apply min_nonneg
     · exact p₁.h_nonneg
     · exact p₂.h_nonneg
 

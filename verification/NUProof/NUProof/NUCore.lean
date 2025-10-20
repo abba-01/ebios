@@ -10,6 +10,7 @@ import Mathlib.Tactic
 namespace NUCore
 
 /-- Nominal/Uncertainty pair representation -/
+@[ext]
 structure NUPair where
   n : ℝ  -- nominal value
   u : ℝ  -- uncertainty (must be non-negative)
