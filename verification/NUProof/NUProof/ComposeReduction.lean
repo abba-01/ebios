@@ -96,9 +96,11 @@ theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p
 
   -- Simplify √(min²) = min (since min ≥ 0)
   have h_min_nonneg : 0 ≤ min p₁.u p₂.u := by
-    apply min_nonneg
-    · exact p₁.h_nonneg
-    · exact p₂.h_nonneg
+    by_cases h : p₁.u ≤ p₂.u
+    · rw [min_eq_left h]
+      exact p₁.h_nonneg
+    · rw [min_eq_right (le_of_not_le h)]
+      exact p₂.h_nonneg
 
   rw [Real.sqrt_sq h_min_nonneg] at h_sqrt
   exact h_sqrt

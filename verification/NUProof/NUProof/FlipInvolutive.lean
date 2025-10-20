@@ -26,7 +26,6 @@ theorem flip_involutive (p : NUPair) :
   ext
   · -- -(-n) = n: flip.n (flip p).n = p.n
     simp [flip]
-    ring
   · -- u = u: flip.u (flip p).u = p.u
     simp [flip]
 
