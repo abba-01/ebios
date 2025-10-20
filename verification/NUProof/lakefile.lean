@@ -2,8 +2,7 @@ import Lake
 open Lake DSL
 
 package «NUProof» where
-  -- Package metadata
-  version := v!"0.1.0"
+  -- Package metadata (version field removed for Lean 4.3.0 compatibility)
 
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"
