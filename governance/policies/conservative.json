@@ -1,0 +1,36 @@
+{
+  "config": {
+    "version": "1.0.0",
+    "name": "ConservativePolicy",
+    "description": "Conservative monitoring policy with low risk tolerance. Suitable for safety-critical systems where epistemic uncertainty must be tightly controlled.",
+    "rules": [
+      {
+        "type": "InvariantRule",
+        "level": "critical"
+      },
+      {
+        "type": "CoverageRule",
+        "threshold": 0.05,
+        "level": "error"
+      },
+      {
+        "type": "ThresholdRule",
+        "max_uncertainty": 1.0,
+        "level": "warning"
+      }
+    ],
+    "escalation": {
+      "halt_on_critical": true,
+      "auto_log": true
+    },
+    "metadata": {
+      "author": "eBIOS",
+      "created_at": "2025-10-20T00:00:00Z",
+      "domain": "safety-critical",
+      "risk_tolerance": "low"
+    }
+  },
+  "signature": null,
+  "public_key": null,
+  "policy_hash": null
+}
