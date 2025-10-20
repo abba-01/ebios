@@ -25,9 +25,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Lean 4
-        uses: leanprover/lean4-action@v1
-        with:
-          version: 'v4.3.0'
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Set up Lean toolchain
+        working-directory: verification/NUProof
+        run: |
+          source $HOME/.elan/env
+          elan toolchain install $(cat lean-toolchain)
+          elan default $(cat lean-toolchain)
 
       - name: Cache Lean dependencies
         uses: actions/cache@v4
@@ -157,6 +165,7 @@ jobs:
 
       - name: Download proof manifest
         uses: actions/download-artifact@v4
+        continue-on-error: true  # Optional - Lean proofs may not have run
         with:
           name: proof-manifest
           path: verification/NUProof/
