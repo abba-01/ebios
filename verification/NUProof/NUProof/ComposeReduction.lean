@@ -120,8 +120,7 @@ theorem compose_with_certain (p₁ p₂ : NUPair) (h₁ : p₁.u = 0) (h₂ : p�
   · -- Prove nominal: (p₁.n * p₂.u² + 0) / p₂.u² = p₁.n
     field_simp [h_sq_ne]
   · -- Prove uncertainty: √(0 / p₂.u²) = 0
-    have h_arg : (0 * p₂.u^2) / p₂.u^2 = 0 := by field_simp [h_sq_ne]
-    rw [h_arg, Real.sqrt_zero]
+    simp only [zero_mul, zero_div, Real.sqrt_zero]
 
 /-- Composition is commutative -/
 theorem compose_comm (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p₂.u ≠ 0) :

@@ -69,7 +69,10 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
   · -- Second part: (u₁ + u₂)² ≤ 2(u₁² + u₂²)
     calc (u₁ + u₂)^2
         = u₁^2 + 2*u₁*u₂ + u₂^2 := by ring
-      _ ≤ u₁^2 + u₁^2 + u₂^2 + u₂^2 := by nlinarith [sq_nonneg u₁, sq_nonneg u₂]
+      _ ≤ u₁^2 + u₁^2 + u₂^2 + u₂^2 := by
+          -- 2*u₁*u₂ ≤ u₁² + u₂² from (u₁ - u₂)² ≥ 0
+          have : 0 ≤ (u₁ - u₂)^2 := sq_nonneg _
+          nlinarith
       _ = 2*(u₁^2 + u₂^2) := by ring
 
 /-- Lemma: Quadrature sum bounds interval sum (uses statistical independence assumption) -/
@@ -116,13 +119,17 @@ theorem add_enclosure_conservative (p₁ p₂ : NUPair) :
 
   have hδ₁ : |δ₁| ≤ p₁.u := by
     simp [δ₁]
-    rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨ha_lower, ha_upper⟩
+    rw [abs_sub_comm, abs_sub_le_iff]
+    constructor
+    · linarith
+    · linarith
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
     simp [δ₂]
-    rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨hb_lower, hb_upper⟩
+    rw [abs_sub_comm, abs_sub_le_iff]
+    constructor
+    · linarith
+    · linarith
 
   have hx_form : x = (p₁.n + p₂.n) + (δ₁ + δ₂) := by
     simp [δ₁, δ₂, hx]
@@ -198,9 +205,16 @@ lemma arithmetic_to_quadrature_bound (a b c : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b)
     calc (a + b + c)^2
         = a^2 + b^2 + c^2 + 2*(a*b + b*c + a*c) := by ring
       _ ≤ a^2 + b^2 + c^2 + 2*((a^2 + b^2)/2 + (b^2 + c^2)/2 + (a^2 + c^2)/2) := by
-          have hab : a*b ≤ (a^2 + b^2)/2 := by nlinarith
-          have hbc : b*c ≤ (b^2 + c^2)/2 := by nlinarith
-          have hac : a*c ≤ (a^2 + c^2)/2 := by nlinarith
+          -- AM-GM: 2ab ≤ a² + b² from (a-b)² ≥ 0
+          have hab : a*b ≤ (a^2 + b^2)/2 := by
+            have : 0 ≤ (a - b)^2 := sq_nonneg _
+            nlinarith
+          have hbc : b*c ≤ (b^2 + c^2)/2 := by
+            have : 0 ≤ (b - c)^2 := sq_nonneg _
+            nlinarith
+          have hac : a*c ≤ (a^2 + c^2)/2 := by
+            have : 0 ≤ (a - c)^2 := sq_nonneg _
+            nlinarith
           linarith
       _ = a^2 + b^2 + c^2 + 2*(a^2 + b^2 + c^2) := by ring
       _ = 3*(a^2 + b^2 + c^2) := by ring
@@ -229,13 +243,17 @@ theorem multiply_enclosure_conservative (p₁ p₂ : NUPair) :
 
   have hδ₁ : |δ₁| ≤ p₁.u := by
     simp [δ₁]
-    rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨ha_lower, ha_upper⟩
+    rw [abs_sub_comm, abs_sub_le_iff]
+    constructor
+    · linarith
+    · linarith
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
     simp [δ₂]
-    rw [abs_sub_comm]
-    exact abs_sub_le_iff.mpr ⟨hb_lower, hb_upper⟩
+    rw [abs_sub_comm, abs_sub_le_iff]
+    constructor
+    · linarith
+    · linarith
 
   have hx_form : x = (p₁.n + δ₁) * (p₂.n + δ₂) := by
     simp [δ₁, δ₂, hx]
