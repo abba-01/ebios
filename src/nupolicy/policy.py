@@ -249,7 +249,7 @@ class PolicyManager:
         Args:
             policy_dir: Directory for storing policies
         """
-        self.policy_dir = policy_dir or Path('./governance/policies')
+        self.policy_dir = Path(policy_dir) if policy_dir else Path('./governance/policies')
         self.policy_dir.mkdir(parents=True, exist_ok=True)
         self.current_policy: Optional[Policy] = None
         self.policy_history: List[Policy] = []
