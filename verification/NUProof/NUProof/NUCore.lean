@@ -4,8 +4,8 @@
   Part of eBIOS Layer 2: NUProof
 -/
 
-import NUProof.Mathlib.Data.Real.Basic
-import NUProof.Mathlib.Tactic
+import Mathlib.Data.Real.Basic
+import Mathlib.Tactic
 
 namespace NUCore
 

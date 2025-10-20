@@ -5,13 +5,13 @@
 -/
 
 -- Core definitions
-import NUProof.NUCore
+import NUCore
 
 -- Completed proofs
-import NUProof.NonNegativity
-import NUProof.FlipInvolutive
-import NUProof.Enclosure
-import NUProof.ComposeReduction
+import NonNegativity
+import FlipInvolutive
+import Enclosure
+import ComposeReduction
 
 -- Work-in-progress proofs (have sorry statements)
 -- import AddProperties
