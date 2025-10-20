@@ -1,0 +1,37 @@
+# eBIOS Code Owners
+# Security-sensitive paths require review from designated owners
+
+# Core immutable substrate (Layer 0)
+/src/ebios/          @ebios-core-team
+/verification/       @ebios-verification-team
+
+# NUCore algebra kernel (Layer 1)
+/src/nucore/         @ebios-core-team @nucore-maintainers
+
+# Formal proofs (Layer 2)
+/verification/NUProof/   @ebios-verification-team
+
+# Ledger and attestation (Layer 3)
+/src/nuleger/        @ebios-core-team
+/src/nuguard/        @ebios-core-team
+
+# Cryptographic components
+**/crypto/           @ebios-security-team
+**/attestation/      @ebios-security-team
+**/signing/          @ebios-security-team
+
+# Hardware integration
+/hardware/           @ebios-hardware-team
+
+# Governance and policy
+/governance/         @ebios-governance-team
+
+# Documentation
+/docs/               @ebios-docs-team
+
+# CI/CD and security
+/.github/workflows/  @ebios-core-team
+/security/           @ebios-security-team
+
+# Default: Core team reviews everything else
+*                    @ebios-core-team
