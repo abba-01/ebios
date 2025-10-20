@@ -9,5 +9,6 @@ require mathlib from git
 
 @[default_target]
 lean_lib «NUProof» where
-  -- Library configuration (no roots specified - auto-discover all files)
-  globs := #[.submodules `NUProof]
+  -- Library configuration
+  -- srcDir := "." already implied for libraries
+  -- Lake will auto-discover all .lean files
