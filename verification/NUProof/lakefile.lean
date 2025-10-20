@@ -11,3 +11,5 @@ require mathlib from git
 lean_lib «NUProof» where
   -- Library source directory contains all proof modules
   srcDir := "NUProof"
+  -- Root modules that Lake should build
+  roots := #[`NUProof, `NUCore, `NonNegativity, `FlipInvolutive, `Enclosure, `ComposeReduction]
