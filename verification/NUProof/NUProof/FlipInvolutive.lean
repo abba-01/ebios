@@ -4,7 +4,7 @@
   Part of eBIOS Layer 2: NUProof
 -/
 
-import NUCore
+import NUProof.NUCore
 
 namespace NUCore
 
