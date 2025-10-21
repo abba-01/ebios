@@ -103,7 +103,11 @@ theorem compose_reduces_uncertainty (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p
     · rw [min_eq_right (le_of_not_le h)]
       exact p₂.h_nonneg
 
-  rw [Real.sqrt_sq h_min_nonneg] at h_sqrt
+  have h_sqrt_simp : Real.sqrt (min p₁.u p₂.u ^ 2) = min p₁.u p₂.u := by
+    rw [sq]
+    rw [Real.sqrt_mul h_min_nonneg (min p₁.u p₂.u)]
+    rw [Real.sqrt_mul_self h_min_nonneg]
+  rw [h_sqrt_simp] at h_sqrt
   exact h_sqrt
 
 /-- Composition with certain value yields the certain value -/
@@ -115,12 +119,11 @@ theorem compose_with_certain (p₁ p₂ : NUPair) (h₁ : p₁.u = 0) (h₂ : p�
     have : p₂.u = 0 := by nlinarith [p₂.h_nonneg, h_contra]
     exact h₂ this
   unfold compose
-  simp only [h₁]
-  constructor
-  · -- Prove nominal: (p₁.n * p₂.u² + 0) / p₂.u² = p₁.n
-    field_simp [h_sq_ne]
-  · -- Prove uncertainty: √(0 / p₂.u²) = 0
-    simp only [zero_mul, zero_div, Real.sqrt_zero]
+  simp only [h₁, zero_mul, add_zero, zero_div, Real.sqrt_zero]
+  refine ⟨?_, rfl⟩
+  -- Prove nominal: (p₁.n * p₂.u² + 0) / p₂.u² = p₁.n
+  field_simp [h_sq_ne]
+  ring
 
 /-- Composition is commutative -/
 theorem compose_comm (p₁ p₂ : NUPair) (h : p₁.u ≠ 0 ∨ p₂.u ≠ 0) :

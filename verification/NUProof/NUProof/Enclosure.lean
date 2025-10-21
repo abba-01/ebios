@@ -65,14 +65,21 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
       _ ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by linarith [h₁, h₂]
       _ ≤ u₁^2 + 2*(Real.sqrt (u₁^2) * Real.sqrt (u₂^2)) + u₂^2 := by linarith [h_prod_bound]
       _ = (Real.sqrt (u₁^2) + Real.sqrt (u₂^2))^2 := by ring
-      _ = (u₁ + u₂)^2 := by simp only [Real.sq_sqrt (sq_nonneg u₁), Real.sq_sqrt (sq_nonneg u₂)]
+      _ = (|u₁| + |u₂|)^2 := by
+          rw [Real.sqrt_sq_eq_abs, Real.sqrt_sq_eq_abs]
+      _ = (u₁ + u₂)^2 := by
+          have hu₁_nonneg : 0 ≤ u₁ := by nlinarith [sq_nonneg δ₁, h₁]
+          have hu₂_nonneg : 0 ≤ u₂ := by nlinarith [sq_nonneg δ₂, h₂]
+          simp [abs_of_nonneg hu₁_nonneg, abs_of_nonneg hu₂_nonneg]
   · -- Second part: (u₁ + u₂)² ≤ 2(u₁² + u₂²)
+    have hu₁_nonneg : 0 ≤ u₁ := by nlinarith [sq_nonneg δ₁, h₁]
+    have hu₂_nonneg : 0 ≤ u₂ := by nlinarith [sq_nonneg δ₂, h₂]
     calc (u₁ + u₂)^2
         = u₁^2 + 2*u₁*u₂ + u₂^2 := by ring
       _ ≤ u₁^2 + u₁^2 + u₂^2 + u₂^2 := by
           -- 2*u₁*u₂ ≤ u₁² + u₂² from (u₁ - u₂)² ≥ 0
           have : 0 ≤ (u₁ - u₂)^2 := sq_nonneg _
-          nlinarith
+          nlinarith [hu₁_nonneg, hu₂_nonneg]
       _ = 2*(u₁^2 + u₂^2) := by ring
 
 /-- Lemma: Quadrature sum bounds interval sum (uses statistical independence assumption) -/
