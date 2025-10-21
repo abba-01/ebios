@@ -59,21 +59,47 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
       rw [abs_mul]
       exact mul_le_mul hδ₁ hδ₂ (abs_nonneg δ₂) (Real.sqrt_nonneg _)
 
+    -- First prove non-negativity of u₁ and u₂ from squared inequalities
+    have hu₁_nonneg : 0 ≤ u₁ := by
+      have : 0 ≤ u₁^2 := sq_nonneg u₁
+      have : δ₁^2 ≤ u₁^2 := h₁
+      have : 0 ≤ δ₁^2 := sq_nonneg δ₁
+      by_cases h : u₁ = 0
+      · rw [h]; linarith
+      · have : 0 < u₁^2 := sq_pos_of_ne_zero _ h
+        nlinarith [sq_nonneg u₁]
+    have hu₂_nonneg : 0 ≤ u₂ := by
+      have : 0 ≤ u₂^2 := sq_nonneg u₂
+      have : δ₂^2 ≤ u₂^2 := h₂
+      have : 0 ≤ δ₂^2 := sq_nonneg δ₂
+      by_cases h : u₂ = 0
+      · rw [h]; linarith
+      · have : 0 < u₂^2 := sq_pos_of_ne_zero _ h
+        nlinarith [sq_nonneg u₂]
+
     calc (δ₁ + δ₂)^2
         = δ₁^2 + 2*δ₁*δ₂ + δ₂^2 := by ring
       _ ≤ δ₁^2 + 2*|δ₁*δ₂| + δ₂^2 := by nlinarith [le_abs_self (δ₁*δ₂)]
       _ ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by linarith [h₁, h₂]
       _ ≤ u₁^2 + 2*(Real.sqrt (u₁^2) * Real.sqrt (u₂^2)) + u₂^2 := by linarith [h_prod_bound]
-      _ = (Real.sqrt (u₁^2) + Real.sqrt (u₂^2))^2 := by ring
-      _ = (|u₁| + |u₂|)^2 := by
-          rw [Real.sqrt_sq_eq_abs, Real.sqrt_sq_eq_abs]
-      _ = (u₁ + u₂)^2 := by
-          have hu₁_nonneg : 0 ≤ u₁ := by nlinarith [sq_nonneg δ₁, h₁]
-          have hu₂_nonneg : 0 ≤ u₂ := by nlinarith [sq_nonneg δ₂, h₂]
-          simp [abs_of_nonneg hu₁_nonneg, abs_of_nonneg hu₂_nonneg]
+      _ = (Real.sqrt (u₁^2) + Real.sqrt (u₂^2))^2 := by
+          have h1 : Real.sqrt (u₁^2) = u₁ := Real.sqrt_sq hu₁_nonneg
+          have h2 : Real.sqrt (u₂^2) = u₂ := Real.sqrt_sq hu₂_nonneg
+          rw [h1, h2]
+          ring
+      _ = (u₁ + u₂)^2 := by ring
   · -- Second part: (u₁ + u₂)² ≤ 2(u₁² + u₂²)
-    have hu₁_nonneg : 0 ≤ u₁ := by nlinarith [sq_nonneg δ₁, h₁]
-    have hu₂_nonneg : 0 ≤ u₂ := by nlinarith [sq_nonneg δ₂, h₂]
+    -- Derive non-negativity by cases
+    have hu₁_nonneg : 0 ≤ u₁ := by
+      by_cases h : u₁ < 0
+      · have : u₁ ^ 2 < δ₁ ^ 2 := by nlinarith [sq_nonneg u₁, sq_nonneg δ₁]
+        linarith [h₁]
+      · push_neg at h; exact h
+    have hu₂_nonneg : 0 ≤ u₂ := by
+      by_cases h : u₂ < 0
+      · have : u₂ ^ 2 < δ₂ ^ 2 := by nlinarith [sq_nonneg u₂, sq_nonneg δ₂]
+        linarith [h₂]
+      · push_neg at h; exact h
     calc (u₁ + u₂)^2
         = u₁^2 + 2*u₁*u₂ + u₂^2 := by ring
       _ ≤ u₁^2 + u₁^2 + u₂^2 + u₂^2 := by
@@ -125,28 +151,24 @@ theorem add_enclosure_conservative (p₁ p₂ : NUPair) :
   let δ₂ := b - p₂.n
 
   have hδ₁ : |δ₁| ≤ p₁.u := by
-    simp [δ₁]
+    simp only [δ₁]
     rw [abs_sub_comm, abs_sub_le_iff]
-    constructor
-    · linarith
-    · linarith
+    constructor <;> linarith
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
-    simp [δ₂]
+    simp only [δ₂]
     rw [abs_sub_comm, abs_sub_le_iff]
-    constructor
-    · linarith
-    · linarith
+    constructor <;> linarith
 
   have hx_form : x = (p₁.n + p₂.n) + (δ₁ + δ₂) := by
-    simp [δ₁, δ₂, hx]
+    simp only [δ₁, δ₂, hx]
+    ring
 
   have h_bound := quadrature_bounds_interval_sum p₁.u p₂.u δ₁ δ₂ hδ₁ hδ₂ p₁.h_nonneg p₂.h_nonneg
 
   rw [hx_form]
-  constructor
-  · linarith [h_bound]
-  · linarith [h_bound]
+  rw [abs_le] at h_bound
+  constructor <;> linarith [h_bound.1, h_bound.2]
 
 /-- Addition enclosure theorem (standard form)
 
@@ -249,21 +271,18 @@ theorem multiply_enclosure_conservative (p₁ p₂ : NUPair) :
   let δ₂ := b - p₂.n
 
   have hδ₁ : |δ₁| ≤ p₁.u := by
-    simp [δ₁]
+    simp only [δ₁]
     rw [abs_sub_comm, abs_sub_le_iff]
-    constructor
-    · linarith
-    · linarith
+    constructor <;> linarith
 
   have hδ₂ : |δ₂| ≤ p₂.u := by
-    simp [δ₂]
+    simp only [δ₂]
     rw [abs_sub_comm, abs_sub_le_iff]
-    constructor
-    · linarith
-    · linarith
+    constructor <;> linarith
 
   have hx_form : x = (p₁.n + δ₁) * (p₂.n + δ₂) := by
-    simp [δ₁, δ₂, hx]
+    simp only [δ₁, δ₂, hx]
+    ring
 
   have h_arith := multiply_conservative_bound p₁.n p₁.u p₂.n p₂.u δ₁ δ₂ hδ₁ hδ₂ p₁.h_nonneg p₂.h_nonneg
 
@@ -272,27 +291,28 @@ theorem multiply_enclosure_conservative (p₁ p₂ : NUPair) :
     (mul_nonneg (abs_nonneg p₂.n) p₁.h_nonneg)
     (mul_nonneg p₁.h_nonneg p₂.h_nonneg)
 
-  have : |x - p₁.n * p₂.n| ≤ Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
+  have h_bound : |x - p₁.n * p₂.n| ≤ Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
     calc |x - p₁.n * p₂.n|
         = |(p₁.n + δ₁) * (p₂.n + δ₂) - p₁.n * p₂.n| := by rw [hx_form]
       _ ≤ |p₁.n| * p₂.u + |p₂.n| * p₁.u + p₁.u * p₂.u := h_arith
       _ ≤ Real.sqrt (3*((|p₁.n| * p₂.u)^2 + (|p₂.n| * p₁.u)^2 + (p₁.u * p₂.u)^2)) := h_quad
       _ = Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
-            rw [sq_abs, sq_abs]
+            congr 1
+            rw [mul_pow, mul_pow, sq_abs, sq_abs]
+            ring
 
-  rw [abs_sub_le_iff] at this
-  constructor
-  · linarith [this.2]
-  · linarith [this.1]
+  rw [abs_sub_le_iff] at h_bound
+  constructor <;> linarith [h_bound.1, h_bound.2]
 
 /-- Multiplication enclosure theorem (standard form) -/
 theorem multiply_enclosure (p₁ p₂ : NUPair) :
   ∀ x ∈ interval_mul (toInterval p₁) (toInterval p₂),
     |x - p₁.n * p₂.n| ≤ Real.sqrt (3*((p₁.n * p₂.u)^2 + (p₂.n * p₁.u)^2 + (p₁.u * p₂.u)^2)) := by
   intro x hx
-  have := multiply_enclosure_conservative p₁ p₂
-  have h_in := this hx
-  simp [Set.mem_Icc] at h_in
+  have h_cons := multiply_enclosure_conservative p₁ p₂
+  have h_in := h_cons hx
+  simp only [Set.mem_Icc] at h_in
+  rw [abs_sub_le_iff]
   constructor
   · linarith [h_in.2]
   · linarith [h_in.1]
