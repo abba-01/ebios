@@ -7,6 +7,29 @@ NULedger: Cryptographic audit ledger for eBIOS operations.
 
 Every NUCore operation generates a signed, timestamped, Merkle-chained
 audit entry. The ledger is append-only and tamper-evident.
+
+=== KNOWN LIMITATIONS (2025-10-22) ===
+MEDIUM PRIORITY: Signature verification incomplete
+
+Issue: verify_integrity() checks Merkle root and timestamps but skips
+Ed25519 signature verification due to missing key management.
+
+Impact:
+- Tampered entries with forged signatures would pass verification
+- Audit trail integrity depends on Merkle tree only
+- Compliance gap for DO-178C/ISO 26262 full certification
+
+Mitigation (current):
+- Merkle tree provides tamper detection (O(n) verification)
+- Monotonic timestamps prevent reordering
+- Suitable for development and integration testing
+
+TODO (before production):
+- Implement proper key management (HSM or secure keystore)
+- Add public key verification in verify_integrity()
+- Consider certificate-based PKI for multi-party systems
+
+See: CHANGES.md for incident log
 """
 
 import hashlib
@@ -274,8 +297,15 @@ class Ledger:
         if computed_tree.root() != self.merkle.root():
             return False
 
-        # Signature verification requires public key
-        # (Skipped for now, would need key management)
+        # TODO: Signature verification requires public key management
+        # SECURITY NOTE: This is a known gap documented in file header
+        # For production deployment, implement:
+        #   1. Secure key storage (HSM or encrypted keystore)
+        #   2. Public key verification for each entry
+        #   3. Certificate chain validation for multi-party systems
+        #
+        # Current mitigation: Merkle tree provides tamper detection
+        # See: CHANGES.md for tracking
 
         return True
 

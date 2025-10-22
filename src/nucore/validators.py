@@ -4,6 +4,20 @@ NUCore Validators: Invariant checking and verification
 Provides O(1) validation functions to ensure epistemic integrity.
 
 All validators run in constant time regardless of input complexity.
+
+=== SECURITY FIXES (2025-10-22) ===
+CRITICAL: Replaced assertion-based validation with explicit exceptions.
+
+Rationale: Python assertions are disabled with -O flag. For safety-critical
+systems (SIL 3/4, DO-178C Level A), invariant checks must remain active
+in all build modes.
+
+Changes:
+- assert_invariants() now raises ValueError instead of AssertionError
+- All safety checks survive -O optimization flag
+- No behavioral change (same validation logic)
+
+See: CHANGES.md for incident log
 """
 
 import math
@@ -54,10 +68,15 @@ def assert_invariants(n: float, u: float, operation: str = "unknown") -> None:
 
     Complexity: O(1)
     """
-    assert not math.isnan(n), f"{operation}: Nominal is NaN"
-    assert not math.isnan(u), f"{operation}: Uncertainty is NaN"
-    assert not math.isinf(n), f"{operation}: Nominal is infinite"
-    assert u >= 0, f"{operation}: Non-negativity violated (u={u})"
+    # SAFETY-CRITICAL: Explicit exception (not assert - survives -O flag)
+    if math.isnan(n):
+        raise ValueError(f"{operation}: Nominal is NaN")
+    if math.isnan(u):
+        raise ValueError(f"{operation}: Uncertainty is NaN")
+    if math.isinf(n):
+        raise ValueError(f"{operation}: Nominal is infinite")
+    if u < 0:
+        raise ValueError(f"{operation}: Non-negativity violated (u={u})")
 
 
 def verify_constant_time(

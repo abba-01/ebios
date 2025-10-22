@@ -331,7 +331,9 @@ class TestValidators:
 
     def test_assert_invariants_fails_negative_u(self):
         """Assert invariants fails for negative uncertainty"""
-        with pytest.raises(AssertionError):
+        # Updated 2025-10-22: assert_invariants now raises ValueError (not AssertionError)
+        # Reason: Exceptions survive -O flag (assertions don't)
+        with pytest.raises(ValueError):
             assert_invariants(10.0, -1.0, operation="test")
 
     def test_coverage_ratio(self):

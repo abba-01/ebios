@@ -15,6 +15,20 @@ Each operation OP ∈ {⊕, ⊗, ⊙} executes in fixed time and space
 independent of graph depth.
 
 Proof: /verification/NUProof/complexity.v
+
+=== SECURITY FIXES (2025-10-22) ===
+CRITICAL: Replaced assertion-based validation with explicit exceptions.
+
+Rationale: Python assertions are disabled with -O flag, which would remove
+all safety-critical invariant checks in production. For SIL 3/4 and
+DO-178C Level A compliance, invariant checks MUST NOT be disableable.
+
+Changes:
+- All `assert` statements replaced with `if` + `raise ValueError/RuntimeError`
+- Invariant violations now raise explicit exceptions in all build modes
+- No behavioral change (same validation logic, different mechanism)
+
+See: CHANGES.md for incident log
 """
 
 import math
@@ -48,13 +62,18 @@ def add(n1: float, u1: float, n2: float, u2: float) -> NU:
 
     Formal proof: /verification/NUProof/add_nonnegative.v
     """
-    assert u1 >= 0, f"Non-negativity violated: u1={u1} < 0"
-    assert u2 >= 0, f"Non-negativity violated: u2={u2} < 0"
+    # SAFETY-CRITICAL: Explicit exception (not assert - survives -O flag)
+    if u1 < 0:
+        raise ValueError(f"Non-negativity violated: u1={u1} < 0")
+    if u2 < 0:
+        raise ValueError(f"Non-negativity violated: u2={u2} < 0")
 
     n_out = n1 + n2
     u_out = math.sqrt(u1 * u1 + u2 * u2)
 
-    assert u_out >= 0, f"Output non-negativity violated: u_out={u_out}"
+    # Postcondition check (should never fail if math is correct)
+    if u_out < 0:
+        raise RuntimeError(f"Output non-negativity violated: u_out={u_out}")
 
     return (n_out, u_out)
 
@@ -89,9 +108,13 @@ def multiply(n1: float, u1: float, n2: float, u2: float, lambda_margin: float = 
 
     Formal proof: /verification/NUProof/multiply_enclosure.v
     """
-    assert u1 >= 0, f"Non-negativity violated: u1={u1} < 0"
-    assert u2 >= 0, f"Non-negativity violated: u2={u2} < 0"
-    assert lambda_margin >= 1.0, f"Margin must be >= 1.0: λ={lambda_margin}"
+    # SAFETY-CRITICAL: Explicit exception (not assert - survives -O flag)
+    if u1 < 0:
+        raise ValueError(f"Non-negativity violated: u1={u1} < 0")
+    if u2 < 0:
+        raise ValueError(f"Non-negativity violated: u2={u2} < 0")
+    if lambda_margin < 1.0:
+        raise ValueError(f"Margin must be >= 1.0: λ={lambda_margin}")
 
     n_out = n1 * n2
 
@@ -102,7 +125,9 @@ def multiply(n1: float, u1: float, n2: float, u2: float, lambda_margin: float = 
 
     u_out = lambda_margin * math.sqrt(term1**2 + term2**2 + term3**2)
 
-    assert u_out >= 0, f"Output non-negativity violated: u_out={u_out}"
+    # Postcondition check
+    if u_out < 0:
+        raise RuntimeError(f"Output non-negativity violated: u_out={u_out}")
 
     return (n_out, u_out)
 
@@ -138,8 +163,11 @@ def compose(n1: float, u1: float, n2: float, u2: float) -> NU:
 
     Formal proof: /verification/NUProof/compose_reduction.v
     """
-    assert u1 >= 0, f"Non-negativity violated: u1={u1} < 0"
-    assert u2 >= 0, f"Non-negativity violated: u2={u2} < 0"
+    # SAFETY-CRITICAL: Explicit exception (not assert - survives -O flag)
+    if u1 < 0:
+        raise ValueError(f"Non-negativity violated: u1={u1} < 0")
+    if u2 < 0:
+        raise ValueError(f"Non-negativity violated: u2={u2} < 0")
 
     # Handle zero uncertainty cases
     if u1 == 0 and u2 == 0:
@@ -163,9 +191,13 @@ def compose(n1: float, u1: float, n2: float, u2: float) -> NU:
     # Geometric mean in uncertainty space
     u_out = math.sqrt((u1_sq * u2_sq) / denom)
 
-    assert u_out >= 0, f"Output non-negativity violated: u_out={u_out}"
-    assert u_out <= u1 + 1e-10, f"Reduction violated: u_out={u_out} > u1={u1}"
-    assert u_out <= u2 + 1e-10, f"Reduction violated: u_out={u_out} > u2={u2}"
+    # Postcondition checks (uncertainty reduction property)
+    if u_out < 0:
+        raise RuntimeError(f"Output non-negativity violated: u_out={u_out}")
+    if u_out > u1 + 1e-10:
+        raise RuntimeError(f"Reduction violated: u_out={u_out} > u1={u1}")
+    if u_out > u2 + 1e-10:
+        raise RuntimeError(f"Reduction violated: u_out={u_out} > u2={u2}")
 
     return (n_out, u_out)
 
@@ -220,6 +252,8 @@ def flip(n: float, u: float) -> NU:
 
     Formal proof: /verification/NUProof/flip_involutive.v
     """
-    assert u >= 0, f"Non-negativity violated: u={u} < 0"
+    # SAFETY-CRITICAL: Explicit exception (not assert - survives -O flag)
+    if u < 0:
+        raise ValueError(f"Non-negativity violated: u={u} < 0")
 
     return (-n, u)
