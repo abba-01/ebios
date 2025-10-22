@@ -145,10 +145,10 @@ def compose(n1: float, u1: float, n2: float, u2: float) -> NU:
     if u1 == 0 and u2 == 0:
         # Both certain: average the nominals
         return ((n1 + n2) / 2.0, 0.0)
-    elif u1 == 0:
+    if u1 == 0:
         # First is certain
         return (n1, 0.0)
-    elif u2 == 0:
+    if u2 == 0:
         # Second is certain
         return (n2, 0.0)
 

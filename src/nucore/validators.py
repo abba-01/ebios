@@ -209,12 +209,12 @@ def coverage_ratio(n: float, u: float) -> float:
     return u / abs(n)
 
 
-def is_certain(n: float, u: float, epsilon: float = 1e-10) -> bool:
+def is_certain(_n: float, u: float, epsilon: float = 1e-10) -> bool:
     """
     Check if a value is effectively certain (u ≈ 0).
 
     Args:
-        n: Nominal value
+        _n: Nominal value (unused, kept for API consistency)
         u: Uncertainty
         epsilon: Tolerance for "zero" uncertainty
 
