@@ -4,7 +4,7 @@
 
 ## Manifesto
 
-eBIOS is not software. It is the **floor** — a mathematically minimal, tamper-proof layer ensuring that all higher-level systems (NUCore, NUProof, NULedger, NUGuard, etc.) remain truthful, deterministic, and auditable. It is the epistemic BIOS: a sealed, immutable core for auditonomic systems where **a robot may act autonomously, but it cannot hide its epistemic state.**
+eBIOS is not software. It is the **floor** that free-fall occurrs — a mathematically minimal, tamper-proof layer ensuring that all higher-level systems (NUCore, NUProof, NULedger, NUGuard, etc.) remain truthful, deterministic, and auditable. It is the epistemic BIOS: a sealed, immutable core for auditonomic systems where **a robot may act autonomously, but it cannot hide its epistemic state.**
 
 You can run what you want above it, but **you can't hide what you did.**
 
