@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "eBIOS: Epistemic Basic Input/Output System"
+version: 0.2.0-alpha
+date-released: 2025-10-20
+url: "https://github.com/abba-01/ebios"
+repository-code: "https://github.com/abba-01/ebios"
+license: Apache-2.0
+abstract: >
+  eBIOS (Epistemic Basic Input/Output System) is a foundational firmware layer
+  for uncertainty-aware computation in safety-critical systems. Like a traditional
+  BIOS provides hardware initialization and I/O primitives, eBIOS provides
+  epistemic primitives for uncertainty quantification, formal verification, and
+  accountability. It implements N/U (Nominal/Uncertainty) Algebra with formal
+  verification in Lean 4, cryptographic audit trails, and policy-driven runtime
+  monitoring. The system enforces three immutable principles: truth is a data
+  structure (immutability), failure is allowed but lying is not (provability),
+  and you can run what you want but you can't hide what you did (accountability).
+  This alpha release includes 62.5% formal proof completion with rigorous
+  interval arithmetic and uncertainty reduction theorems.
+keywords:
+  - formal-verification
+  - uncertainty-quantification
+  - cryptographic-audit
+  - lean4
+  - safety-critical-systems
+  - epistemic-logic
+  - immutable-systems
+  - blockchain
+  - governance
+  - policy-management
+authors:
+  - family-names: "eBIOS Contributors"
+    email: "noreply@anthropic.com"
+    affiliation: "eBIOS Project"
+preferred-citation:
+  type: software
+  title: "eBIOS: Epistemic Basic Input/Output System"
+  version: 0.2.0-alpha
+  authors:
+    - family-names: "eBIOS Contributors"
+  year: 2025
+  url: "https://github.com/abba-01/ebios"
+  notes: "Foundational firmware layer for uncertainty-aware epistemic computation"
