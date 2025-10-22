@@ -61,9 +61,9 @@ def assert_invariants(n: float, u: float, operation: str = "unknown") -> None:
 
 
 def verify_constant_time(
-    operation: Callable,
-    args1: tuple,
-    args2: tuple,
+    operation: Callable[..., tuple[float, float]],
+    args1: tuple[float, ...],
+    args2: tuple[float, ...],
     tolerance_ns: int = 1000,
     iterations: int = 1000
 ) -> bool:
