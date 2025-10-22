@@ -156,7 +156,7 @@ jobs:
   integration-check:
     name: Integration Check (Proofs + Tests)
     runs-on: ubuntu-latest
-    needs: [verify-python-tests]
+    needs: [verify-lean-proofs, verify-python-tests]
     if: always()  # Run even if Lean proofs fail
 
     steps:
@@ -164,8 +164,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download proof manifest
+        if: needs.verify-lean-proofs.result == 'success'
         uses: actions/download-artifact@v4
-        continue-on-error: true  # Optional - Lean proofs may not have run
         with:
           name: proof-manifest
           path: verification/NUProof/
@@ -189,14 +189,52 @@ jobs:
           echo ""
           echo "All operations have implementations!"
 
+      - name: Check proof verification status
+        run: |
+          if [ "${{ needs.verify-lean-proofs.result }}" == "success" ]; then
+            echo "✅ Lean 4 formal proofs verified"
+            if [ -f verification/NUProof/proof_manifest.json ]; then
+              echo "✅ Proof manifest downloaded"
+              echo ""
+              echo "Manifest summary:"
+              cat verification/NUProof/proof_manifest.json | python3 -m json.tool
+            fi
+          elif [ "${{ needs.verify-lean-proofs.result }}" == "failure" ]; then
+            echo "⚠️  WARNING: Lean proof verification failed"
+            echo "Python tests passed, but formal proofs have errors"
+            echo "This is non-blocking but should be investigated"
+          else
+            echo "⚠️  WARNING: Lean proof verification was skipped"
+            echo "Python tests passed, but formal proofs were not checked"
+          fi
+
       - name: Final status
         run: |
           echo "=================================================="
-          echo "✅ PHASE 2 VERIFICATION COMPLETE"
+          echo "INTEGRATION CHECK COMPLETE"
           echo "=================================================="
           echo ""
-          echo "All formal proofs verified!"
-          echo "All Python tests passed!"
-          echo "Proof-code correspondence validated!"
+          echo "Python Tests: ${{ needs.verify-python-tests.result }}"
+          echo "Lean Proofs:  ${{ needs.verify-lean-proofs.result }}"
           echo ""
-          echo "eBIOS Layer 2 (NUProof) is operational."
+
+          if [ "${{ needs.verify-python-tests.result }}" == "success" ]; then
+            if [ "${{ needs.verify-lean-proofs.result }}" == "success" ]; then
+              echo "✅ FULL VERIFICATION COMPLETE"
+              echo "All formal proofs verified!"
+              echo "All Python tests passed!"
+              echo "Proof-code correspondence validated!"
+              echo ""
+              echo "eBIOS Layer 2 (NUProof) is fully operational."
+            else
+              echo "✅ PYTHON TESTS PASSED (Proofs pending)"
+              echo "All Python tests passed!"
+              echo "Formal verification incomplete - see warnings above"
+              echo ""
+              echo "eBIOS is operationally ready, formal verification in progress."
+            fi
+          else
+            echo "❌ INTEGRATION CHECK FAILED"
+            echo "Python tests failed - see test results above"
+            exit 1
+          fi
