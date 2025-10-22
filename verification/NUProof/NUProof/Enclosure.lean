@@ -40,7 +40,8 @@ def interval_mul (I₁ I₂ : Set ℝ) : Set ℝ :=
 
 /-- Lemma: For statistical independence, quadrature sum provides valid bound -/
 lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
-    (h₁ : δ₁^2 ≤ u₁^2) (h₂ : δ₂^2 ≤ u₂^2) :
+    (h₁ : δ₁^2 ≤ u₁^2) (h₂ : δ₂^2 ≤ u₂^2)
+    (hu₁ : 0 ≤ u₁) (hu₂ : 0 ≤ u₂) :
     (δ₁ + δ₂)^2 ≤ (u₁ + u₂)^2 ∧ (u₁ + u₂)^2 ≤ 2*(u₁^2 + u₂^2) := by
   constructor
   · -- First part: (δ₁ + δ₂)² ≤ (u₁ + u₂)²
@@ -59,53 +60,23 @@ lemma quadrature_statistical_bound (u₁ u₂ δ₁ δ₂ : ℝ)
       rw [abs_mul]
       exact mul_le_mul hδ₁ hδ₂ (abs_nonneg δ₂) (Real.sqrt_nonneg _)
 
-    -- First prove non-negativity of u₁ and u₂ from squared inequalities
-    have hu₁_nonneg : 0 ≤ u₁ := by
-      have : 0 ≤ u₁^2 := sq_nonneg u₁
-      have : δ₁^2 ≤ u₁^2 := h₁
-      have : 0 ≤ δ₁^2 := sq_nonneg δ₁
-      by_cases h : u₁ = 0
-      · rw [h]; linarith
-      · have : 0 < u₁^2 := sq_pos_of_ne_zero _ h
-        nlinarith [sq_nonneg u₁]
-    have hu₂_nonneg : 0 ≤ u₂ := by
-      have : 0 ≤ u₂^2 := sq_nonneg u₂
-      have : δ₂^2 ≤ u₂^2 := h₂
-      have : 0 ≤ δ₂^2 := sq_nonneg δ₂
-      by_cases h : u₂ = 0
-      · rw [h]; linarith
-      · have : 0 < u₂^2 := sq_pos_of_ne_zero _ h
-        nlinarith [sq_nonneg u₂]
-
     calc (δ₁ + δ₂)^2
         = δ₁^2 + 2*δ₁*δ₂ + δ₂^2 := by ring
       _ ≤ δ₁^2 + 2*|δ₁*δ₂| + δ₂^2 := by nlinarith [le_abs_self (δ₁*δ₂)]
       _ ≤ u₁^2 + 2*|δ₁*δ₂| + u₂^2 := by linarith [h₁, h₂]
       _ ≤ u₁^2 + 2*(Real.sqrt (u₁^2) * Real.sqrt (u₂^2)) + u₂^2 := by linarith [h_prod_bound]
-      _ = (Real.sqrt (u₁^2) + Real.sqrt (u₂^2))^2 := by
-          have h1 : Real.sqrt (u₁^2) = u₁ := Real.sqrt_sq hu₁_nonneg
-          have h2 : Real.sqrt (u₂^2) = u₂ := Real.sqrt_sq hu₂_nonneg
+      _ = (u₁ + u₂)^2 := by
+          have h1 : Real.sqrt (u₁^2) = u₁ := Real.sqrt_sq hu₁
+          have h2 : Real.sqrt (u₂^2) = u₂ := Real.sqrt_sq hu₂
           rw [h1, h2]
           ring
-      _ = (u₁ + u₂)^2 := by ring
   · -- Second part: (u₁ + u₂)² ≤ 2(u₁² + u₂²)
-    -- Derive non-negativity by cases
-    have hu₁_nonneg : 0 ≤ u₁ := by
-      by_cases h : u₁ < 0
-      · have : u₁ ^ 2 < δ₁ ^ 2 := by nlinarith [sq_nonneg u₁, sq_nonneg δ₁]
-        linarith [h₁]
-      · push_neg at h; exact h
-    have hu₂_nonneg : 0 ≤ u₂ := by
-      by_cases h : u₂ < 0
-      · have : u₂ ^ 2 < δ₂ ^ 2 := by nlinarith [sq_nonneg u₂, sq_nonneg δ₂]
-        linarith [h₂]
-      · push_neg at h; exact h
     calc (u₁ + u₂)^2
         = u₁^2 + 2*u₁*u₂ + u₂^2 := by ring
       _ ≤ u₁^2 + u₁^2 + u₂^2 + u₂^2 := by
           -- 2*u₁*u₂ ≤ u₁² + u₂² from (u₁ - u₂)² ≥ 0
           have : 0 ≤ (u₁ - u₂)^2 := sq_nonneg _
-          nlinarith [hu₁_nonneg, hu₂_nonneg]
+          nlinarith [hu₁, hu₂]
       _ = 2*(u₁^2 + u₂^2) := by ring
 
 /-- Lemma: Quadrature sum bounds interval sum (uses statistical independence assumption) -/
@@ -120,7 +91,7 @@ lemma quadrature_bounds_interval_sum (u₁ u₂ δ₁ δ₂ : ℝ)
     calc δ₂^2 = |δ₂|^2 := by rw [sq_abs]
       _ ≤ u₂^2 := by nlinarith [h₂, abs_nonneg δ₂, hu₂]
 
-  have h_stat := quadrature_statistical_bound u₁ u₂ δ₁ δ₂ hδ₁_sq hδ₂_sq
+  have h_stat := quadrature_statistical_bound u₁ u₂ δ₁ δ₂ hδ₁_sq hδ₂_sq hu₁ hu₂
 
   calc |δ₁ + δ₂|
       = Real.sqrt ((δ₁ + δ₂)^2) := by rw [Real.sqrt_sq_eq_abs]
