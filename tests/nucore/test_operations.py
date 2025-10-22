@@ -202,6 +202,15 @@ class TestComposition:
         assert n_out == n1
         assert u_out == 0.0
 
+    def test_certain_second_input_dominates(self):
+        """If second input is certain (u2=0), it dominates"""
+        n1, u1 = 20.0, 5.0  # Uncertain
+        n2, u2 = 10.0, 0.0  # Certain
+        n_out, u_out = compose(n1, u1, n2, u2)
+
+        assert n_out == n2
+        assert u_out == 0.0
+
     def test_both_certain(self):
         """Composing two certain values"""
         n1, u1 = 10.0, 0.0
