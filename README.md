@@ -1,5 +1,7 @@
 # eBIOS: The Epistemic BIOS
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17400232.svg)](https://doi.org/10.5281/zenodo.17400232)
+
 **A cryptographic, immutable root for epistemic computation and auditonomic reasoning systems.**
 
 ## Manifesto
