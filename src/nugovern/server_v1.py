@@ -12,7 +12,7 @@ Features:
 - Complete security hardening
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
@@ -210,7 +210,7 @@ class NUGovernServer:
 
         except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=400,
                 detail=f"Operation failed: {str(e)}"
             )
 
