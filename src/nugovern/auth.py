@@ -77,23 +77,24 @@ class LoginRequest(BaseModel):
 
 
 # In-memory user database (replace with PostgreSQL in production)
+# Passwords are pre-hashed to avoid bcrypt compatibility issues at module load time
 fake_users_db = {
     "admin": UserInDB(
         username="admin",
         role=Role.ADMIN,
-        hashed_password=pwd_context.hash("admin123"),  # Change in production!
+        hashed_password="$2b$12$AYy0KPaL8iLcOOZhCDGmouDelCRTxEyoYiw.j2s6JGDbpAm6XRU.e",  # admin123 (Change in production!)
         disabled=False
     ),
     "operator": UserInDB(
         username="operator",
         role=Role.OPERATOR,
-        hashed_password=pwd_context.hash("operator123"),
+        hashed_password="$2b$12$./IEPKpV3gopDFfForvRB.HvErtNNV75Rpib4AEJ2/EWAR8duHjIa",  # operator123
         disabled=False
     ),
     "auditor": UserInDB(
         username="auditor",
         role=Role.AUDITOR,
-        hashed_password=pwd_context.hash("auditor123"),
+        hashed_password="$2b$12$zS2zC.gcXPcbN3Jf5GXz5ulQ65fj6hofgYa3yqE7.CYDwhasn9.HS",  # auditor123
         disabled=False
     ),
 }
