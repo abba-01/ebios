@@ -100,13 +100,13 @@ pkill -f "uvicorn.*server" || true
 fuser -k 8080/tcp 2>/dev/null || true
 sleep 3
 
-# Start server_v1.py with proper environment
+# Start server.py (v1.0.0 with JWT auth + RBAC + PostgreSQL)
 export PYTHONPATH="$DEPLOY_DIR:$PYTHONPATH"
-nohup python3 -m uvicorn src.nugovern.server_v1:app \
+nohup python3 -m uvicorn src.nugovern.server:app \
     --host 127.0.0.1 --port 8080 \
     > /tmp/ebios_pgtest.log 2>&1 &
 SERVER_PID=$!
-echo "Using server_v1.py (v1.0.0 with JWT auth)"
+echo "Using server.py (v1.0.0 with JWT auth + RBAC + PostgreSQL)"
 echo "✅ Server started (PID: $SERVER_PID)"
 sleep 5
 
