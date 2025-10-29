@@ -45,8 +45,31 @@ theorem add_assoc (p₁ p₂ p₃ : NUPair) :
   apply NUPair.ext
   · -- Nominal associativity: (n₁ + n₂) + n₃ = n₁ + (n₂ + n₃)
     ring
-  · -- Uncertainty associativity (requires sqrt algebra)
-    sorry  -- TODO: Requires lemma: √(√(a²+b²)² + c²) = √(a² + √(b²+c²)²)
+  · -- Uncertainty associativity: √(√(a²+b²)² + c²) = √(a² + √(b²+c²)²)
+    -- Both sides simplify to √(a² + b² + c²)
+    unfold add
+    simp only []
+
+    -- LHS: √((√(u₁² + u₂²))² + u₃²)
+    have h_lhs : Real.sqrt ((Real.sqrt (p₁.u^2 + p₂.u^2))^2 + p₃.u^2) =
+                 Real.sqrt (p₁.u^2 + p₂.u^2 + p₃.u^2) := by
+      -- Simplify (√x)² = x for x ≥ 0
+      have h_nonneg : 0 ≤ p₁.u^2 + p₂.u^2 := by
+        apply add_nonneg <;> exact sq_nonneg _
+      rw [Real.sq_sqrt h_nonneg]
+      ring_nf
+
+    -- RHS: √(u₁² + (√(u₂² + u₃²))²)
+    have h_rhs : Real.sqrt (p₁.u^2 + (Real.sqrt (p₂.u^2 + p₃.u^2))^2) =
+                 Real.sqrt (p₁.u^2 + p₂.u^2 + p₃.u^2) := by
+      -- Simplify (√x)² = x for x ≥ 0
+      have h_nonneg : 0 ≤ p₂.u^2 + p₃.u^2 := by
+        apply add_nonneg <;> exact sq_nonneg _
+      rw [Real.sq_sqrt h_nonneg]
+      ring_nf
+
+    -- Combine: LHS = √(a²+b²+c²) = RHS
+    rw [h_lhs, h_rhs]
 
 /-- Zero uncertainty is additive identity for uncertainty -/
 theorem add_zero_u (p : NUPair) (h : p.u = 0) :
