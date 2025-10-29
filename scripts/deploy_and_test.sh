@@ -15,7 +15,7 @@ BRANCH="v1.0.0-dev"
 # PostgreSQL Testing Credentials (from environment or prompt)
 : ${POSTGRES_USER:=doadmin}
 : ${POSTGRES_PASSWORD:?'POSTGRES_PASSWORD must be set'}
-: ${POSTGRES_HOST:=private-postgres-testing-do-user-15048181-0.m.db.ondigitalocean.com}
+: ${POSTGRES_HOST:=postgres-testing-do-user-15048181-0.m.db.ondigitalocean.com}
 : ${POSTGRES_PORT:=25060}
 : ${POSTGRES_DB:=ebios_v1_test}
 : ${POSTGRES_SSLMODE:=require}
@@ -99,7 +99,7 @@ pkill -f "uvicorn.*server_v1" || true
 sleep 2
 nohup python3 -m uvicorn src.nugovern.server_v1:app \
     --host 127.0.0.1 --port 8080 \
-    > /tmp/ebios_test.log 2>&1 &
+    > /tmp/ebios_pgtest.log 2>&1 &
 SERVER_PID=$!
 echo "✅ Server started (PID: $SERVER_PID)"
 sleep 5
@@ -166,4 +166,4 @@ echo "✅ Git commit: $COMMIT_HASH"
 echo "🧩 PostgreSQL: Connected to $POSTGRES_HOST"
 echo "🧪 Tests: See output above"
 echo ""
-echo "Logs available at: /tmp/ebios_test.log"
+echo "Logs available at: /tmp/ebios_pgtest.log"
