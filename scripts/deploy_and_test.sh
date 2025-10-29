@@ -95,15 +95,27 @@ echo ""
 
 # Step 5: Start Server
 echo "Step 5: Starting eBIOS server..."
-pkill -f "uvicorn.*server_v1" || true
-sleep 2
+# Kill any existing servers on port 8080
+pkill -f "uvicorn.*server" || true
+fuser -k 8080/tcp 2>/dev/null || true
+sleep 3
+
+# Start server_v1.py with proper environment
+export PYTHONPATH="$DEPLOY_DIR:$PYTHONPATH"
 nohup python3 -m uvicorn src.nugovern.server_v1:app \
     --host 127.0.0.1 --port 8080 \
     > /tmp/ebios_pgtest.log 2>&1 &
-echo "Using server_v1.py (v1.0.0 with JWT auth)"
 SERVER_PID=$!
+echo "Using server_v1.py (v1.0.0 with JWT auth)"
 echo "✅ Server started (PID: $SERVER_PID)"
 sleep 5
+
+# Verify server started successfully
+if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo "❌ Server failed to start, checking logs..."
+    tail -30 /tmp/ebios_pgtest.log
+    exit 1
+fi
 echo ""
 
 # Step 6: Health Check
