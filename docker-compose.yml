@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  ebios:
+    build: .
+    container_name: ebios-api
+    ports:
+      - "8080:8080"
+    environment:
+      # Database configuration
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-ebios}
+      - DB_USER=${DB_USER:-ebios}
+      - DB_PASSWORD=${DB_PASSWORD:-ebios_password}
+      - DB_SSLMODE=${DB_SSLMODE:-prefer}
+
+      # JWT configuration
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - JWT_EXPIRY=${JWT_EXPIRY:-3600}
+
+      # API configuration
+      - RATE_LIMIT=${RATE_LIMIT:-100/minute}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - ebios-network
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: ebios-postgres
+    environment:
+      - POSTGRES_DB=${DB_NAME:-ebios}
+      - POSTGRES_USER=${DB_USER:-ebios}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-ebios_password}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+
+    ports:
+      - "5432:5432"
+
+    restart: unless-stopped
+
+    networks:
+      - ebios-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ebios}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Prometheus for metrics (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ebios-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+
+    restart: unless-stopped
+
+    networks:
+      - ebios-network
+
+    profiles:
+      - monitoring
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ebios-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/dashboards:/etc/grafana/provisioning/dashboards
+
+    restart: unless-stopped
+
+    networks:
+      - ebios-network
+
+    profiles:
+      - monitoring
+
+networks:
+  ebios-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

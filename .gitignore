@@ -51,3 +51,4 @@ Thumbs.db
 *.sig
 /verification/proof_cache/
 /governance/registry/temp/
+.env
