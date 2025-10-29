@@ -73,11 +73,92 @@ docker exec ebios pip list | grep -E '(setuptools|urllib3|cryptography|starlette
 | **Docker Compose** | ✅ 80.9.0+ | ✅ 2.5.0+ | ✅ **YES** | ✅ **YES** |
 | **Kubernetes** | ✅ 80.9.0+ | ✅ 2.5.0+ | ✅ **YES** | ✅ **YES** |
 | **Systemd (bare metal)** | ❌ 69.0.3 | ❌ 1.26.19 | ❌ **NO** | ❌ **NO** |
-| **Systemd (venv)** | ⚠️ May conflict | ⚠️ May conflict | ⚠️ **RISKY** | ⚠️ **NOT RECOMMENDED** |
+| **Systemd (venv)** | ✅ 80.9.0+ | ✅ 2.5.0+ | ✅ **YES** | ✅ **YES** |
 
-### Verdict: Docker-Only for Production
+### Verdict: Docker OR Virtual Environment
 
-**Production deployments must use containerization.**
+**Production deployments can use**:
+1. **Docker/Kubernetes** (Recommended - easiest, most isolated)
+2. **Python Virtual Environment** (Supported - properly isolates from RPM packages)
+
+**NOT supported**:
+- Bare metal using system Python (RPM package conflicts)
+
+---
+
+## Virtual Environment Deployment (Alternative to Docker)
+
+**Verified Working**: Python virtual environments properly isolate from RPM packages ✅
+
+### Setup Instructions
+
+```bash
+# Create virtual environment
+python3 -m venv /opt/ebios/venv
+
+# Activate virtual environment
+source /opt/ebios/venv/bin/activate
+
+# Upgrade pip first
+pip install --upgrade pip
+
+# Install eBIOS dependencies (will use latest secure versions)
+pip install -r requirements.txt
+
+# Verify security fixes applied
+pip list | grep -E '(setuptools|urllib3|cryptography|starlette)'
+# Expected:
+# cryptography    46.0.3
+# setuptools      80.9.0
+# starlette       0.49.1
+# urllib3         2.5.0
+```
+
+### Systemd Service with Virtual Environment
+
+Update `/etc/systemd/system/ebios.service`:
+
+```ini
+[Unit]
+Description=eBIOS API Server v1.0.0
+After=network.target
+
+[Service]
+Type=simple
+User=ebios
+Group=ebios
+WorkingDirectory=/opt/ebios
+EnvironmentFile=/opt/ebios/.env
+
+# CRITICAL: Use virtual environment Python
+ExecStart=/opt/ebios/venv/bin/python -m uvicorn \
+    src.nugovern.server_v1:app \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --workers 4
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Key Change**: Use `/opt/ebios/venv/bin/python` NOT `/usr/bin/python3`
+
+### Verification
+
+```bash
+# Activate venv
+source /opt/ebios/venv/bin/activate
+
+# Run security verification
+./scripts/verify_security.sh
+
+# Expected output:
+# ✅ All critical security checks passed!
+# Production ready: YES ✅
+```
 
 ---
 
