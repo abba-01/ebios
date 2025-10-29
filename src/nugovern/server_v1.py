@@ -259,21 +259,14 @@ def create_app() -> FastAPI:
         return HealthResponse(
             status="healthy",
             version="1.0.0",
-            service="eBIOS",
-            timestamp=datetime.now(UTC).isoformat(),
             layers={
-                "layer0_nu_algebra": "operational",
-                "layer1_propagation": "operational",
-                "layer2_operations": "operational",
-                "layer3_ledger": "operational",
-                "layer4_governance": "operational",
-                "layer5_attestation": "operational",
-                "layer6_consensus": "operational",
-                "layer7_api": "operational"
-            },
-            database={
-                "status": "connected" if isinstance(server.ledger.backend, PostgreSQLBackend) else "memory",
-                "type": "postgresql" if isinstance(server.ledger.backend, PostgreSQLBackend) else "memory"
+                "nucore": True,
+                "nuledger": True,
+                "nuguard": True,
+                "nupolicy": True,
+                "auth": True,
+                "rbac": True,
+                "postgres": isinstance(server.ledger.backend, PostgreSQLBackend)
             }
         )
 
