@@ -255,6 +255,13 @@ docker-compose up -d ebios
 
 ## Option 2: Systemd Service
 
+⚠️ **CRITICAL SECURITY REQUIREMENT**: Must use Python virtual environment
+
+**Supported**: ✅ Systemd with venv
+**NOT Supported**: ❌ Bare metal with system Python (vulnerable RPM packages)
+
+**Why**: System Python packages (setuptools 69.0.3, urllib3 1.26.19) have unpatched HIGH severity vulnerabilities (CVE-2025-47273, CVE-2025-50181). Virtual environments properly isolate and use secure versions.
+
 For deployment on existing infrastructure without Docker.
 
 ### Step 1: Prepare Environment
@@ -272,13 +279,17 @@ cd /opt/ebios
 git clone https://github.com/abba-01/ebios.git .
 git checkout v1.0.0
 
-# Create virtual environment
+# ⚠️ CRITICAL: Create virtual environment (REQUIRED for security)
 python3.12 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Install dependencies (will use secure versions, NOT vulnerable RPM packages)
 pip install --upgrade pip
 pip install -r requirements.txt
+
+# Verify security fixes applied
+pip list | grep -E '(cryptography|starlette|setuptools|urllib3)'
+# Expected: cryptography 46.0.3+, starlette 0.49.1+, setuptools 80.9.0+
 ```
 
 ### Step 2: Configure Environment
@@ -324,6 +335,8 @@ WorkingDirectory=/opt/ebios
 Environment="PATH=/opt/ebios/venv/bin"
 EnvironmentFile=/opt/ebios/.env
 
+# ⚠️ CRITICAL: Must use venv Python (NOT /usr/bin/python3)
+# This ensures security fixes are applied (setuptools 80.9.0+, urllib3 2.5.0+)
 ExecStart=/opt/ebios/venv/bin/python -m uvicorn \
     src.nugovern.server_v1:app \
     --host 0.0.0.0 \
