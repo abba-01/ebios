@@ -100,6 +100,7 @@ sleep 2
 nohup python3 -m uvicorn src.nugovern.server_v1:app \
     --host 127.0.0.1 --port 8080 \
     > /tmp/ebios_pgtest.log 2>&1 &
+echo "Using server_v1.py (v1.0.0 with JWT auth)"
 SERVER_PID=$!
 echo "✅ Server started (PID: $SERVER_PID)"
 sleep 5
