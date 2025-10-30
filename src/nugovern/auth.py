@@ -18,12 +18,20 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import secrets
+import os
+import sys
 
 # Security configuration
-SECRET_KEY = secrets.token_urlsafe(32)  # Should be from environment in production
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    print("⚠️  WARNING: SECRET_KEY not set in environment!", file=sys.stderr)
+    print("⚠️  Using randomly generated key - tokens will be invalidated on restart!", file=sys.stderr)
+    print("⚠️  Set SECRET_KEY environment variable for production use.", file=sys.stderr)
+    SECRET_KEY = secrets.token_urlsafe(32)
+
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '60'))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS', '30'))
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
