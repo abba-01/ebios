@@ -353,19 +353,18 @@ def create_app() -> FastAPI:
     ):
         """Query ledger (requires admin, operator, or auditor role)"""
         try:
-            # Build query
-            query_params = {}
-            if op_id:
-                query_params['op_id'] = op_id
-            if operation:
-                query_params['operation'] = operation
-            if start_time:
-                query_params['start_time'] = start_time
-            if end_time:
-                query_params['end_time'] = end_time
+            # Get all entries and filter
+            entries = server.ledger.get_all()
 
-            # Query ledger
-            entries = server.ledger.query(**query_params)
+            # Apply filters
+            if op_id:
+                entries = [e for e in entries if e.op_id == op_id]
+            if operation:
+                entries = [e for e in entries if e.operation == operation]
+            if start_time:
+                entries = [e for e in entries if e.timestamp >= start_time]
+            if end_time:
+                entries = [e for e in entries if e.timestamp <= end_time]
 
             # Paginate
             total = len(entries)
@@ -402,7 +401,8 @@ def create_app() -> FastAPI:
     ):
         """Verify operation signature (requires admin, operator, or auditor role)"""
         try:
-            entries = server.ledger.query(op_id=op_id)
+            # Get all entries and filter by op_id
+            entries = [e for e in server.ledger.get_all() if e.op_id == op_id]
             if not entries:
                 raise HTTPException(status_code=404, detail="Operation not found")
 
