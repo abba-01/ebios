@@ -14,20 +14,9 @@ from src.nuledger import MemoryBackend
 
 
 @pytest.fixture
-def server():
-    """Create test server with temp directory"""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        server = NUGovernServer(
-            ledger_backend=MemoryBackend(),
-            policy_dir=Path(tmpdir)
-        )
-        yield server
-
-
-@pytest.fixture
-def client(server):
+def client():
     """Create test client"""
-    app = create_app(server)
+    app = create_app()
     return TestClient(app)
 
 
@@ -41,7 +30,7 @@ class TestHealthEndpoint:
 
         data = response.json()
         assert data['status'] == 'healthy'
-        assert data['version'] == '0.1.0'
+        assert data['version'] == '1.0.0'
         assert 'layers' in data
         assert data['layers']['nucore'] is True
 
