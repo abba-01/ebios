@@ -84,30 +84,6 @@ class LoginRequest(BaseModel):
     password: str
 
 
-# In-memory user database (replace with PostgreSQL in production)
-# Passwords are pre-hashed to avoid bcrypt compatibility issues at module load time
-fake_users_db = {
-    "admin": UserInDB(
-        username="admin",
-        role=Role.ADMIN,
-        hashed_password="$2b$12$AYy0KPaL8iLcOOZhCDGmouDelCRTxEyoYiw.j2s6JGDbpAm6XRU.e",  # admin123 (Change in production!)
-        disabled=False
-    ),
-    "operator": UserInDB(
-        username="operator",
-        role=Role.OPERATOR,
-        hashed_password="$2b$12$./IEPKpV3gopDFfForvRB.HvErtNNV75Rpib4AEJ2/EWAR8duHjIa",  # operator123
-        disabled=False
-    ),
-    "auditor": UserInDB(
-        username="auditor",
-        role=Role.AUDITOR,
-        hashed_password="$2b$12$zS2zC.gcXPcbN3Jf5GXz5ulQ65fj6hofgYa3yqE7.CYDwhasn9.HS",  # auditor123
-        disabled=False
-    ),
-}
-
-
 # Password utilities
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
@@ -122,7 +98,9 @@ def get_password_hash(password: str) -> str:
 # User utilities
 def get_user(username: str) -> Optional[UserInDB]:
     """Get user from database"""
-    return fake_users_db.get(username)
+    from .user_db import get_user_db
+    db = get_user_db()
+    return db.get_user(username)
 
 
 def authenticate_user(username: str, password: str) -> Optional[UserInDB]:

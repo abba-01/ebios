@@ -24,6 +24,7 @@ import sys
 # Import authentication and RBAC
 from .auth import get_current_user, require_role, Role, User
 from .auth_routes import router as auth_router
+from .user_routes import router as user_router
 from .security_headers import SecurityHeadersMiddleware
 
 # Import existing models
@@ -265,6 +266,9 @@ def create_app() -> FastAPI:
 
     # Include authentication routes (router already has /auth prefix)
     app.include_router(auth_router, tags=["Authentication"])
+
+    # Include user management routes (router already has /users prefix)
+    app.include_router(user_router, tags=["User Management"])
 
     # Health check (no auth required)
     @app.get("/", response_model=HealthResponse)
