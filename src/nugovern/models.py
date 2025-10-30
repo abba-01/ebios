@@ -28,6 +28,10 @@ class OperationRequest(BaseModel):
         default=None,
         description="Optional operation parameters (e.g., lambda_margin for multiply)"
     )
+    parent_id: Optional[str] = Field(
+        default=None,
+        description="Optional parent operation ID for operation chains"
+    )
 
     model_config = ConfigDict(json_schema_extra={
         "example": {

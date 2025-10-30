@@ -18,7 +18,7 @@ Key Features:
 - OpenAPI/Swagger documentation
 """
 
-from .server import create_app, NUGovernServer
+from .server_v1 import create_app, NUGovernServer
 from .models import OperationRequest, OperationResponse, PolicyRequest, LedgerQuery
 
 __all__ = [

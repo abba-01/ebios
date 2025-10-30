@@ -178,8 +178,7 @@ class NUGovernServer:
             cov = coverage_ratio(n_out, u_out)
 
             # Validate result
-            validation_result = validate(n_out, u_out)
-            invariant_passed = validation_result["valid"]
+            invariant_passed = validate(n_out, u_out)
 
             # Log to ledger
             op_id = self.ledger.append(
@@ -215,11 +214,19 @@ class NUGovernServer:
             )
 
 
-# Prometheus metrics
-requests_total = Counter('ebios_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-request_duration = Histogram('ebios_request_duration_seconds', 'Request duration')
-operations_total = Counter('ebios_operations_total', 'Total operations', ['operation'])
-invariant_failures = Counter('ebios_invariant_failures_total', 'Total invariant failures')
+# Prometheus metrics (with collision protection for tests)
+try:
+    requests_total = Counter('ebios_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
+    request_duration = Histogram('ebios_request_duration_seconds', 'Request duration')
+    operations_total = Counter('ebios_operations_total', 'Total operations', ['operation'])
+    invariant_failures = Counter('ebios_invariant_failures_total', 'Total invariant failures')
+except ValueError:
+    # Metrics already registered (happens in tests)
+    from prometheus_client import REGISTRY
+    requests_total = REGISTRY._names_to_collectors.get('ebios_requests_total')
+    request_duration = REGISTRY._names_to_collectors.get('ebios_request_duration_seconds')
+    operations_total = REGISTRY._names_to_collectors.get('ebios_operations_total')
+    invariant_failures = REGISTRY._names_to_collectors.get('ebios_invariant_failures_total')
 
 
 def create_app() -> FastAPI:
