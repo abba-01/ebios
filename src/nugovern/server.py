@@ -19,6 +19,7 @@ from typing import List, Optional, Dict, Any
 from pathlib import Path
 from datetime import datetime, UTC
 import os
+import sys
 
 # Import authentication and RBAC
 from .auth import get_current_user, require_role, Role, User
@@ -239,10 +240,19 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    # CORS middleware (configure for production)
+    # CORS middleware (configurable via environment)
+    cors_origins = os.getenv('CORS_ORIGINS', '*')
+    if cors_origins == '*':
+        print("⚠️  WARNING: CORS allows all origins (*)", file=sys.stderr)
+        print("⚠️  Set CORS_ORIGINS environment variable for production", file=sys.stderr)
+        allow_origins = ["*"]
+    else:
+        allow_origins = [origin.strip() for origin in cors_origins.split(',')]
+        print(f"✓ CORS restricted to: {allow_origins}", file=sys.stderr)
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # TODO: Restrict in production
+        allow_origins=allow_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
