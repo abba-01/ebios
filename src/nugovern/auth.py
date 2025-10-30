@@ -84,6 +84,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    """Refresh token request"""
+    refresh_token: str
+
+
 # Password utilities
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""

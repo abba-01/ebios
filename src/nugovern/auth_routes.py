@@ -13,6 +13,7 @@ from .auth import (
     get_current_active_user,
     decode_token,
     LoginRequest,
+    RefreshTokenRequest,
     Token,
     User,
     ACCESS_TOKEN_EXPIRE_MINUTES
@@ -62,18 +63,18 @@ async def login(credentials: LoginRequest):
 
 
 @router.post("/refresh", response_model=Token)
-async def refresh_token(refresh_token: str):
+async def refresh_token(request: RefreshTokenRequest):
     """
     Refresh access token using refresh token
 
     Args:
-        refresh_token: Valid refresh token
+        request: Refresh token request containing the refresh token
 
     Returns:
         New access and refresh tokens
     """
     try:
-        token_data = decode_token(refresh_token)
+        token_data = decode_token(request.refresh_token)
     except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
