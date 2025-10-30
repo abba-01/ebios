@@ -5,6 +5,50 @@ All notable changes to eBIOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-29
+
+### Added
+- **Grafana Monitoring Dashboard**
+  - Pre-built dashboard JSON with 12 visualization panels
+  - Request rate, duration (p95/p99), and status code distribution
+  - Operations by type and invariant failure tracking
+  - Request latency heatmap and top endpoints table
+  - Error log visualization
+  - Single-stat panels for total requests, error rate, and uptime
+
+- **Monitoring Documentation**
+  - Comprehensive setup guide (monitoring/README.md)
+  - Quick start with Docker for Prometheus and Grafana
+  - Production deployment examples (Docker Compose, Kubernetes)
+  - Alert rule templates for high error rate, high latency, and invariant failures
+  - Troubleshooting section for common issues
+  - Security best practices
+
+- **Database Backup Automation**
+  - Production-ready backup script (scripts/backup/backup-database.sh)
+  - Configurable retention policy (default 30 days)
+  - Gzip compression support
+  - S3/cloud storage upload (optional)
+  - Backup integrity verification
+  - Automatic cleanup of old backups
+  - Colored logging output with timestamps
+  - Command-line options: --backup-dir, --retention, --s3-bucket, --verbose
+
+- **Database Restore Tool**
+  - Safe restore script (scripts/backup/restore-database.sh)
+  - Support for compressed (.gz) and uncompressed backups
+  - Safety confirmation prompt (--force flag to skip)
+  - Automatic connection termination before restore
+  - Database drop and recreate
+  - Post-restore size reporting
+  - Comprehensive error handling
+
+### Benefits
+- Real-time monitoring of API health and performance
+- Automated backup strategy with disaster recovery capability
+- Production-ready observability stack
+- Safe database restore procedures
+
 ## [1.2.0] - 2025-10-29
 
 ### Added
