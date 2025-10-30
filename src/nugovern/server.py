@@ -234,9 +234,13 @@ def create_app() -> FastAPI:
     # Create FastAPI app
     app = FastAPI(
         title="eBIOS API",
-        version="1.0.0",
+        version="1.1.0",
         description="Epistemic Bio-Inspired Operating System with formal guarantees"
     )
+
+    # Register error handlers (must be done before other exception handlers)
+    from .error_handlers import register_error_handlers
+    register_error_handlers(app)
 
     # Add rate limiter
     app.state.limiter = limiter
