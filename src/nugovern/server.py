@@ -248,8 +248,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Include authentication routes
-    app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+    # Include authentication routes (router already has /auth prefix)
+    app.include_router(auth_router, tags=["Authentication"])
 
     # Health check (no auth required)
     @app.get("/", response_model=HealthResponse)
