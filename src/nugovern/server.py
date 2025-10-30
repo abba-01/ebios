@@ -24,6 +24,7 @@ import sys
 # Import authentication and RBAC
 from .auth import get_current_user, require_role, Role, User
 from .auth_routes import router as auth_router
+from .security_headers import SecurityHeadersMiddleware
 
 # Import existing models
 from .models import (
@@ -257,6 +258,10 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Security headers middleware
+    app.add_middleware(SecurityHeadersMiddleware)
+    print("✓ Security headers enabled (HSTS, CSP, X-Frame-Options, etc.)", file=sys.stderr)
 
     # Include authentication routes (router already has /auth prefix)
     app.include_router(auth_router, tags=["Authentication"])
