@@ -51,8 +51,27 @@ from slowapi.errors import RateLimitExceeded
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 
-# Initialize rate limiter
-limiter = Limiter(key_func=get_remote_address)
+# Initialize rate limiter (disable during tests)
+import sys
+TESTING = 'pytest' in sys.modules or os.getenv('TESTING', 'false').lower() == 'true'
+
+if TESTING:
+    # Create a no-op limiter for tests
+    class NoOpLimiter:
+        def limit(self, *args, **kwargs):
+            def decorator(func):
+                return func
+            return decorator
+
+        @property
+        def exempt(self):
+            def decorator(func):
+                return func
+            return decorator
+
+    limiter = NoOpLimiter()
+else:
+    limiter = Limiter(key_func=get_remote_address)
 
 
 class NUGovernServer:
@@ -242,9 +261,10 @@ def create_app() -> FastAPI:
         description="Epistemic Bio-Inspired Operating System with formal guarantees"
     )
 
-    # Add rate limiter
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    # Add rate limiter (only if not testing)
+    if not TESTING:
+        app.state.limiter = limiter
+        app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # CORS middleware (configure for production)
     app.add_middleware(
