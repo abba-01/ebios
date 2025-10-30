@@ -5,6 +5,28 @@ All notable changes to eBIOS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-29
+
+### Added
+- **Alembic Database Migrations**
+  - Database schema versioning with Alembic
+  - Environment-based configuration (reads from POSTGRES_* env vars)
+  - Initial migration: create users table (revision 5e1db40d8352)
+  - Upgrade/downgrade support for safe schema changes
+  - Index on users.role for query performance
+  - Comprehensive migration documentation (migrations/README_MIGRATIONS.md)
+  - Migration commands: `alembic upgrade head`, `alembic downgrade -1`, etc.
+
+### Changed
+- Added alembic>=1.13.0 to requirements.txt
+- Database URL now constructed from environment variables in Alembic
+
+### Benefits
+- Safe production schema changes with rollback capability
+- Track database version across environments
+- Coordinate code deployments with schema changes
+- Multi-environment support (dev/staging/prod)
+
 ## [1.1.1] - 2025-10-29
 
 ### Added
