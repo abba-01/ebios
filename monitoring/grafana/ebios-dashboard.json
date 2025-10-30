@@ -1,0 +1,174 @@
+{
+  "dashboard": {
+    "title": "eBIOS Monitoring Dashboard",
+    "tags": ["ebios", "api", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(ebios_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}} ({{status}})",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Requests/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "Request Duration (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(ebios_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95 latency",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(ebios_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99 latency",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Duration"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "HTTP Status Codes",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum by (status) (rate(ebios_requests_total[5m]))",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Requests/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "Operations by Type",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(ebios_operations_total[5m])",
+            "legendFormat": "{{operation}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "ops", "label": "Operations/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "Invariant Failures",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "rate(ebios_invariant_failures_total[5m])",
+            "refId": "A"
+          }
+        ],
+        "format": "ops",
+        "sparkline": {"show": true}
+      },
+      {
+        "title": "Total Requests (24h)",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(increase(ebios_requests_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "format": "short",
+        "sparkline": {"show": true}
+      },
+      {
+        "title": "Error Rate",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(ebios_requests_total{status=~\"4..|5..\"}[5m])) / sum(rate(ebios_requests_total[5m])) * 100",
+            "refId": "A"
+          }
+        ],
+        "format": "percent",
+        "thresholds": "5,10",
+        "colors": ["#299c46", "#e5ac0e", "#bf1b00"]
+      },
+      {
+        "title": "Uptime",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16},
+        "targets": [
+          {
+            "expr": "time() - process_start_time_seconds",
+            "refId": "A"
+          }
+        ],
+        "format": "s"
+      },
+      {
+        "title": "Request Latency Heatmap",
+        "type": "heatmap",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "rate(ebios_request_duration_seconds_bucket[5m])",
+            "format": "heatmap",
+            "refId": "A"
+          }
+        ],
+        "dataFormat": "tsbuckets"
+      },
+      {
+        "title": "Top Endpoints by Traffic",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "topk(10, sum by (endpoint) (rate(ebios_requests_total[5m])))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transform": "table"
+      },
+      {
+        "title": "Error Log (Last 100)",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "targets": [
+          {
+            "expr": "ebios_requests_total{status=~\"4..|5..\"}",
+            "format": "table",
+            "instant": false,
+            "refId": "A"
+          }
+        ],
+        "transform": "table"
+      }
+    ]
+  }
+}
