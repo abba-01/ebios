@@ -115,6 +115,8 @@ def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
         return None
     if not verify_password(password, user.hashed_password):
         return None
+    if user.disabled:
+        return None  # Disabled users cannot authenticate
     return user
 
 

@@ -38,12 +38,27 @@ def admin_token(client):
 
 
 @pytest.fixture
-def operator_token(client):
-    """Get operator JWT token"""
+def operator_token(client, admin_token):
+    """Get operator JWT token (reset password if changed by previous tests)"""
+    # Try to login with default password
     response = client.post("/auth/login", json={
         "username": "operator",
         "password": "operator123"
     })
+
+    # If login fails (password changed by previous test), reset it
+    if response.status_code != 200:
+        # Reset password as admin
+        client.put("/users/operator/password",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"new_password": "operator123"})
+
+        # Try login again
+        response = client.post("/auth/login", json={
+            "username": "operator",
+            "password": "operator123"
+        })
+
     assert response.status_code == 200
     return response.json()["access_token"]
 
@@ -103,7 +118,7 @@ class TestCreateUser:
             })
 
         assert response.status_code == 409  # Conflict
-        assert "already exists" in response.json()["detail"]
+        assert "already exists" in response.json()["message"]
 
     def test_create_user_invalid_role(self, client, admin_token):
         """Test creating user with invalid role fails"""
@@ -117,7 +132,7 @@ class TestCreateUser:
             })
 
         assert response.status_code == 400
-        assert "Invalid role" in response.json()["detail"]
+        assert "Invalid role" in response.json()["message"]
 
     def test_create_user_no_auth(self, client):
         """Test creating user without authentication fails"""
@@ -216,7 +231,7 @@ class TestGetUser:
             headers={"Authorization": f"Bearer {admin_token}"})
 
         assert response.status_code == 404
-        assert "not found" in response.json()["detail"]
+        assert "not found" in response.json()["message"]
 
     def test_get_user_no_auth(self, client):
         """Test getting user without authentication fails"""
@@ -324,7 +339,7 @@ class TestUpdateUser:
             json={"role": "superadmin"})
 
         assert response.status_code == 400
-        assert "Invalid role" in response.json()["detail"]
+        assert "Invalid role" in response.json()["message"]
 
     def test_update_user_no_auth(self, client):
         """Test updating user without authentication fails"""
@@ -382,7 +397,7 @@ class TestChangePassword:
             json={"new_password": "hacked123"})
 
         assert response.status_code == 403
-        assert "Insufficient permissions" in response.json()["detail"]
+        assert "Insufficient permissions" in response.json()["message"]
 
     def test_change_password_not_found(self, client, admin_token):
         """Test changing password for non-existent user fails"""
@@ -439,7 +454,7 @@ class TestDeleteUser:
             headers={"Authorization": f"Bearer {admin_token}"})
 
         assert response.status_code == 400
-        assert "Cannot delete your own" in response.json()["detail"]
+        assert "Cannot delete your own" in response.json()["message"]
 
     def test_delete_user_no_auth(self, client):
         """Test deleting user without authentication fails"""
