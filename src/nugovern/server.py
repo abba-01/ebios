@@ -218,11 +218,19 @@ class NUGovernServer:
             )
 
 
-# Prometheus metrics
-requests_total = Counter('ebios_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-request_duration = Histogram('ebios_request_duration_seconds', 'Request duration')
-operations_total = Counter('ebios_operations_total', 'Total operations', ['operation'])
-invariant_failures = Counter('ebios_invariant_failures_total', 'Total invariant failures')
+# Prometheus metrics (with collision protection for tests)
+try:
+    requests_total = Counter('ebios_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
+    request_duration = Histogram('ebios_request_duration_seconds', 'Request duration')
+    operations_total = Counter('ebios_operations_total', 'Total operations', ['operation'])
+    invariant_failures = Counter('ebios_invariant_failures_total', 'Total invariant failures')
+except ValueError:
+    # Metrics already registered (happens in tests)
+    from prometheus_client import REGISTRY
+    requests_total = REGISTRY._names_to_collectors.get('ebios_requests_total')
+    request_duration = REGISTRY._names_to_collectors.get('ebios_request_duration_seconds')
+    operations_total = REGISTRY._names_to_collectors.get('ebios_operations_total')
+    invariant_failures = REGISTRY._names_to_collectors.get('ebios_invariant_failures_total')
 
 
 def create_app() -> FastAPI:
@@ -268,8 +276,8 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     print("✓ Security headers enabled (HSTS, CSP, X-Frame-Options, etc.)", file=sys.stderr)
 
-    # Include authentication routes (router already has /auth prefix)
-    app.include_router(auth_router, tags=["Authentication"])
+    # Include authentication routes
+    app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
     # Include user management routes (router already has /users prefix)
     app.include_router(user_router, tags=["User Management"])
