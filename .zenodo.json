@@ -3,15 +3,9 @@
   "description": "eBIOS (Epistemic Basic Input/Output System) is a foundational firmware layer for uncertainty-aware computation in safety-critical systems. Like a traditional BIOS provides hardware initialization and I/O primitives, eBIOS provides epistemic primitives for uncertainty quantification, formal verification, and accountability. <br><br><strong>Key Features:</strong><ul><li>N/U (Nominal/Uncertainty) Algebra with O(1) operations</li><li>Formal verification in Lean 4 (62.5% complete)</li><li>Cryptographic audit ledger with Ed25519 signatures</li><li>Policy-driven runtime monitoring</li><li>Complete governance API</li></ul><br><strong>Core Principles:</strong><ol><li><strong>Immutability:</strong> Truth is a data structure, not a declaration</li><li><strong>Provability:</strong> Failure is allowed. Lying about failure is not.</li><li><strong>Accountability:</strong> You can run what you want above it, but you can't hide what you did</li></ol><br><strong>Status:</strong> Alpha release with 172 passing tests, 100% code coverage, and 403 lines of rigorous formal verification.",
   "creators": [
     {
-      "name": "eBIOS Contributors",
-      "affiliation": "eBIOS Project"
-    }
-  ],
-  "contributors": [
-    {
-      "name": "Claude (Anthropic)",
-      "type": "Other",
-      "affiliation": "Anthropic"
+      "name": "Martin, Eric D.",
+      "affiliation": "All Your Baseline LLC",
+      "orcid": "0009-0006-5944-1742"
     }
   ],
   "keywords": [
