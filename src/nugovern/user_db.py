@@ -90,22 +90,37 @@ class UserDatabase:
 
     def _seed_default_users(self):
         """Seed default users in PostgreSQL"""
+        import os
+        admin_pw    = os.environ.get("EBIOS_ADMIN_PASSWORD")
+        operator_pw = os.environ.get("EBIOS_OPERATOR_PASSWORD")
+        auditor_pw  = os.environ.get("EBIOS_AUDITOR_PASSWORD")
+
+        missing = [name for name, val in [
+            ("EBIOS_ADMIN_PASSWORD", admin_pw),
+            ("EBIOS_OPERATOR_PASSWORD", operator_pw),
+            ("EBIOS_AUDITOR_PASSWORD", auditor_pw),
+        ] if not val]
+        if missing:
+            raise RuntimeError(
+                f"Cannot seed users — missing env vars: {', '.join(missing)}"
+            )
+
         default_users = [
             {
                 'username': 'admin',
-                'password': 'admin123',
+                'password': admin_pw,
                 'role': Role.ADMIN,
                 'disabled': False
             },
             {
                 'username': 'operator',
-                'password': 'operator123',
+                'password': operator_pw,
                 'role': Role.OPERATOR,
                 'disabled': False
             },
             {
                 'username': 'auditor',
-                'password': 'auditor123',
+                'password': auditor_pw,
                 'role': Role.AUDITOR,
                 'disabled': False
             }
@@ -124,23 +139,39 @@ class UserDatabase:
 
     def _seed_default_users_memory(self):
         """Seed default users in memory"""
+        import os
+        from .auth import get_password_hash
+        admin_pw    = os.environ.get("EBIOS_ADMIN_PASSWORD")
+        operator_pw = os.environ.get("EBIOS_OPERATOR_PASSWORD")
+        auditor_pw  = os.environ.get("EBIOS_AUDITOR_PASSWORD")
+
+        missing = [name for name, val in [
+            ("EBIOS_ADMIN_PASSWORD", admin_pw),
+            ("EBIOS_OPERATOR_PASSWORD", operator_pw),
+            ("EBIOS_AUDITOR_PASSWORD", auditor_pw),
+        ] if not val]
+        if missing:
+            raise RuntimeError(
+                f"Cannot seed users — missing env vars: {', '.join(missing)}"
+            )
+
         self.in_memory_users = {
             "admin": UserInDB(
                 username="admin",
                 role=Role.ADMIN,
-                hashed_password="$2b$12$AYy0KPaL8iLcOOZhCDGmouDelCRTxEyoYiw.j2s6JGDbpAm6XRU.e",  # admin123
+                hashed_password=get_password_hash(admin_pw),
                 disabled=False
             ),
             "operator": UserInDB(
                 username="operator",
                 role=Role.OPERATOR,
-                hashed_password="$2b$12$./IEPKpV3gopDFfForvRB.HvErtNNV75Rpib4AEJ2/EWAR8duHjIa",  # operator123
+                hashed_password=get_password_hash(operator_pw),
                 disabled=False
             ),
             "auditor": UserInDB(
                 username="auditor",
                 role=Role.AUDITOR,
-                hashed_password="$2b$12$zS2zC.gcXPcbN3Jf5GXz5ulQ65fj6hofgYa3yqE7.CYDwhasn9.HS",  # auditor123
+                hashed_password=get_password_hash(auditor_pw),
                 disabled=False
             ),
         }
