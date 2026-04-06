@@ -38,10 +38,25 @@ noncomputable def compose (p₁ p₂ : NUPair) (h₁ : p₁.u ≠ 0 ∨ p₂.u �
     apply Real.sqrt_nonneg
 
 /-- Flip operation: negation preserving uncertainty -/
+-- Note: This is the negation flip (-n, u). It IS involutive: flip(flip(p)) = p.
+-- Distinct from the NASA Paper's B operator (u, |n|) which is NOT involutive.
 def flip (p : NUPair) : NUPair where
   n := -p.n
   u := p.u
   h_nonneg := p.h_nonneg
+
+/-- NASA Paper B operator: swap nominal and uncertainty with absolute value -/
+-- B(n, u) = (u, |n|)
+-- This is NOT involutive. B² ≠ id in general.
+-- Property: B² is idempotent (B⁴ = B²), and B³ = B (period-2 from B¹).
+-- B(n, u)   = (u, |n|)
+-- B²(n, u)  = (|n|, u)   [since u ≥ 0, |u| = u]
+-- B³(n, u)  = (u, |n|)   = B(n, u)
+-- So B³ = B: the operator cycles with period 2 after the first application.
+noncomputable def swapFlip (p : NUPair) : NUPair where
+  n := p.u
+  u := |p.n|
+  h_nonneg := abs_nonneg p.n
 
 /-- Interval representation [n - u, n + u] -/
 def toInterval (p : NUPair) : Set ℝ :=
